@@ -22,7 +22,7 @@
 
 ## Pull-Requestの作成
 
-- [プルリクエストのリンク](https://ap-northeast-1.console.aws.amazon.com/codesuite/codecommit/repositories/idem-nc-codecommit/pull-requests?region=ap-northeast-1&status=OPEN&pull-requests-meta=eyJmIjp7InRleHQiOiIifSwicyI6e30sIm4iOjEwLCJpIjowfQ)からプルリクエストを作成してください。
+- [Pull request] タブからプルリクエストを作成してください。
 - ターゲット：dev、ソース：作業ブランチ名、を選択してください。mainブランチをターゲットにしないでください。
 - レビュワーが理解できる適切なタイトルをつけてください。
 - テンプレートは "PULL_REQUEST_TEMPLATE.md" を使用してください。
