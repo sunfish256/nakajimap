@@ -1,0 +1,12 @@
+services:
+  app:
+    build: .
+    working_dir: /nakajimap
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./nakajimap:/nakajimap
+      - /nakajimap/node_modules
+    ports:
+      - 3000:3000
+    command: npm run dev
