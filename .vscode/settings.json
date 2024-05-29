@@ -1,3 +1,8 @@
 {
-    "hediet.vscode-drawio.theme": "Kennedy"
+  "hediet.vscode-drawio.theme": "Kennedy",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true
 }
