@@ -83,7 +83,7 @@ export default function SearchResult() {
                 direction={order === "desc" ? "desc" : "desc"}
                 onClick={() => handleSortRequest("n_review")}
               >
-                口コミ&nbsp;(件)
+                口コミ件数
               </TableSortLabel>
             </TableCell>
             <TableCell align="left">店名</TableCell>
