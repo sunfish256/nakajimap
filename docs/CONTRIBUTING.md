@@ -18,14 +18,14 @@
 - 作業を完了したら、リモートリポジトリに同名のブランチを作成してpushしてください。
 - コンフリクトを避けるため、極力`git rebase dev`でrebaseしてからpushしてください。
 - devブランチを直接編集しないでください。
-- 詳細は "dev_info.md" の "Git Flow" の項目を参照してください。
+- 詳細は [dev_info.md](https://github.com/sunfish256/nakajimap/blob/main/docs/develop_info.md) の [Git Flow](https://github.com/sunfish256/nakajimap/blob/main/docs/develop_info.md#git-flow) の項目を参照してください。
 
 ## Pull-Requestの作成
 
-- [プルリクエストのリンク](https://ap-northeast-1.console.aws.amazon.com/codesuite/codecommit/repositories/idem-nc-codecommit/pull-requests?region=ap-northeast-1&status=OPEN&pull-requests-meta=eyJmIjp7InRleHQiOiIifSwicyI6e30sIm4iOjEwLCJpIjowfQ)からプルリクエストを作成してください。
+- [Pull request] タブからプルリクエストを作成してください。
 - ターゲット：dev、ソース：作業ブランチ名、を選択してください。mainブランチをターゲットにしないでください。
 - レビュワーが理解できる適切なタイトルをつけてください。
-- テンプレートは "PULL_REQUEST_TEMPLATE.md" を使用してください。
+- [PULL_REQUEST_TEMPLATE.md](https://github.com/sunfish256/nakajimap/blob/main/.github/pull_request_template.md) が自動で読み込まれるのでフォーマットに準拠してください。
 - mergeする際に作業ブランチは削除されます。削除を希望しない場合は明記してください。
 - PR作成後、変更タブにて差分コードへの説明コメント挿入を推奨しています。
 - レビュワー（管理者）へレビュー依頼を行ってください。
@@ -37,7 +37,7 @@
   - 承認する場合は、LGTM (Looks Good To Me) と記載してください。
   - 承認しない場合は、理由を記載してプルリクエストを閉じてください。
   - 各行へのコメント一覧（1行目のみでOK）を箇条書きで記載してください。
-- 詳細は "dev_info.md" の "コードレビュー" の項目を参照してください。
+- 詳細は [dev_info.md](https://github.com/sunfish256/nakajimap/blob/main/docs/develop_info.md) の [コードレビュー](https://github.com/sunfish256/nakajimap/blob/main/docs/develop_info.md#%E3%82%B3%E3%83%BC%E3%83%89%E3%83%AC%E3%83%93%E3%83%A5%E3%83%BC) の項目を参照してください。
 
 | ラベル | 意味                            | 意図                                                               |
 |--------|---------------------------------|--------------------------------------------------------------------|
@@ -51,5 +51,5 @@
 
 ## マージ
 
-- 3ウェイマージ（`git merge --no-ff <ブランチ名>`と同義）でマージします。
-- 作業ブランチを削除します。
+- [Create a merge commit] (`git merge --no-ff <ブランチ名>`と同義) でマージします。
+- 作業ブランチを削除します。main <- dev へのマージである場合は、削除せずに残します。
