@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="H6-1cNfcnJ3eHqYFva5w" name="Page-1">
-        <mxGraphModel dx="3707" dy="1897" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="1" shadow="0">
+        <mxGraphModel dx="2793" dy="1343" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="1" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -607,7 +607,7 @@
                 <mxCell id="367" value="リストから選択するとMAPに表示される" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;size=19;" parent="1" vertex="1">
                     <mxGeometry x="1245.5" y="-10" width="120" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="368" value="現在地を取得して検索する機能(初期状態を現在地。初期情報取れない場合は東京駅)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+                <mxCell id="368" value="現在地を取得して検索する機能(初期状態を現在地。初期情報取れない場合は東京駅。オプショナル。)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
                     <mxGeometry x="-970" y="151" width="170" height="70" as="geometry"/>
                 </mxCell>
                 <mxCell id="369" value="店名クリックするとマップ上にピンが立つようにする" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
