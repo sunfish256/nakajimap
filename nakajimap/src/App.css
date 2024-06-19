@@ -1,42 +1,33 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 上下中央揃え */
+  justify-content: center; /* 左右中央揃え */
+  height: 98vh; /* ビューポートの高さに合わせる */
+  min-width: 1200px;
+  border: 1px solid #000; /* 黒い枠線を追加 (確認用) */
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.content {
+  display: flex;
+  align-items: center; /* 上下中央揃え */
+  justify-content: space-between; /* 左右中央揃え */
+  padding: 10px; /* 内側の余白を追加 */
+  margin: 10px; /* 外側の余白を追加 */
+  border: 1px solid #000; /* 黒い枠線を追加 */
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.search-result {
+  flex: 1;
+  margin: 10px;
+  margin-right: 20px;
+  margin-top: 0px;
+  /*border: 1px solid #000; /* 黒い枠線を追加 (確認用) */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+.map {
+  /* Mapで定義した幅は400px */
+  flex: 1;
+  margin: 10px;
+  border: 1px solid #000; /* 黒い枠線を追加 */
 }
