@@ -5,7 +5,7 @@
   justify-content: center; /* 左右中央揃え */
   height: 98vh; /* ビューポートの高さに合わせる */
   min-width: 1200px;
-  border: 1px solid #000; /* 黒い枠線を追加 (確認用) */
+  /* order: 1px solid #000; /* 黒い枠線を追加 (確認用) */
 }
 
 .content {
