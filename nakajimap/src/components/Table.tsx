@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { styled } from "@mui/material/styles"
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import BookmarkIcon from "@mui/icons-material/Bookmark"
 import Checkbox from "@mui/material/Checkbox"
@@ -55,17 +56,23 @@ export default function SearchResult() {
   const sortedRows = order
     ? rows.slice().sort((a, b) => {
         if (orderBy === "star") {
-          return b.star - a.star
+          return b.star - a.star || b.n_review - a.n_review
         } else if (orderBy === "n_review") {
-          return b.n_review - a.n_review
+          return b.n_review - a.n_review || b.star - a.star
         }
         return 0
       })
     : rows
 
+  const ScrollableTableCell = styled(TableCell)({
+    maxWidth: "240px",
+    overflowX: "auto",
+    whiteSpace: "nowrap",
+  })
+
   return (
-    <TableContainer component={Paper} style={{ maxHeight: 368, overflow: "auto" }}>
-      <Table stickyHeader sx={{ minWidth: 650 }} size="small" aria-label="simple table">
+    <TableContainer component={Paper} style={{ maxHeight: 366, overflow: "auto" }}>
+      <Table stickyHeader style={{ width: 600 }} size="small" aria-label="simple table">
         <TableHead>
           <TableRow>
             <TableCell align="left">
@@ -97,7 +104,7 @@ export default function SearchResult() {
                 {row.star}
               </TableCell>
               <TableCell align="left">{row.n_review}</TableCell>
-              <TableCell align="left">{row.shop}</TableCell>
+              <ScrollableTableCell align="left">{row.shop}</ScrollableTableCell>
               <TableCell align="left">
                 <Checkbox
                   icon={<BookmarkBorderIcon />}

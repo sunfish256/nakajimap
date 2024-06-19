@@ -30,7 +30,7 @@ const RestaurantFilter: React.FC = () => {
   }
 
   return (
-    <Box sx={{ width: 600, margin: "normal" }}>
+    <Box sx={{ width: 1103, margin: "normal" }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
         <TextField
           label="エリア・駅"
