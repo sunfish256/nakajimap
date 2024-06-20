@@ -71,30 +71,37 @@ export default function SearchResult() {
   })
 
   return (
-    <TableContainer component={Paper} style={{ maxHeight: 366, overflow: "auto" }}>
-      <Table stickyHeader style={{ width: 600 }} size="small" aria-label="simple table">
+    <TableContainer
+      component={Paper}
+      style={{ height: "100%", overflowX: "hidden", overflowY: "auto", backgroundColor: "#fcfcfc" }}
+    >
+      <Table stickyHeader size="small" aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell align="left">
+            <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
               <TableSortLabel
                 active={orderBy === "star"}
                 direction={order === "desc" ? "desc" : "desc"}
                 onClick={() => handleSortRequest("star")}
               >
-                評価
+                ☆評価
               </TableSortLabel>
             </TableCell>
-            <TableCell align="left">
+            <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
               <TableSortLabel
                 active={orderBy === "n_review"}
                 direction={order === "desc" ? "desc" : "desc"}
                 onClick={() => handleSortRequest("n_review")}
               >
-                口コミ件数
+                口コミ数
               </TableSortLabel>
             </TableCell>
-            <TableCell align="left">店名</TableCell>
-            <TableCell align="left">行きたい</TableCell>
+            <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
+              店名
+            </TableCell>
+            <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
+              行きたい
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

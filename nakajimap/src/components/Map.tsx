@@ -51,7 +51,7 @@ const Map: React.FC = () => {
     }
   }, [])
 
-  return <div id="map" style={{ height: "433px", width: "434px" }} />
+  return <div id="map" style={{ width: "100%", height: "100%" }} />
 }
 
 export default Map
