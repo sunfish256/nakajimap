@@ -8,7 +8,6 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/home" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/" element={<Auth />} /> {/* デフォルトはAuthに */}
       </Routes>
