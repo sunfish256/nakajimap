@@ -1,7 +1,25 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Box, TextField, Typography, Button } from "@mui/material"
+import { auth } from "../firebase"
+import { useNavigate } from 'react-router-dom';
 
-const RestaurantFilter: React.FC = () => {
+export const RestaurantFilter: React.FC = () => {
+  const [currentUser, setCurrentUser] = useState<null | object>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        navigate("/login");
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
+
+
+
   const [location, setLocation] = useState("")
   const [distance, setDistance] = useState<string>("")
   const [minBudget, setMinBudget] = useState<string>("")
@@ -117,6 +135,25 @@ const RestaurantFilter: React.FC = () => {
         <Typography>口コミ数: {filters.reviewCount} 件以上</Typography>
         <Typography>☆評価: {filters.rating} 以上</Typography>
       </Box>
+      <Button
+        fullWidth
+        onClick={async () => {
+          try {
+            await auth.signOut();
+            navigate("/auth");
+          } catch (error) {
+            if (error instanceof Error) {
+              alert(error.message);
+            } else {
+              console.error("Unexpected error", error);
+            }
+          }
+        }}
+        style={{ marginTop: "0.5em", marginBottom: "0.5em" }}
+      >
+        Logout
+      </Button>
+      
     </Box>
   )
 }

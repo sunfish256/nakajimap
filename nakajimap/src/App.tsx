@@ -1,7 +1,7 @@
-import React from 'react'
+import React from "react"
 import Home from "./pages/Home"
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
-import { Auth } from './pages/Auth'
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
+import { Auth } from "./pages/Auth"
 import "./App.css"
 
 const App: React.FC = () => {
@@ -13,7 +13,7 @@ const App: React.FC = () => {
         <Route path="/" element={<Auth />} /> {/* デフォルトはAuthに */}
       </Routes>
     </Router>
-  );
-};
+  )
+}
 
 export default App

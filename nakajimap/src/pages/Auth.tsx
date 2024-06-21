@@ -28,7 +28,7 @@ export const Auth: React.FC = () => {
   useEffect(() => {
     auth.onAuthStateChanged(user => {
       if (user) {
-        navigate("/home"); // ログインしている場合、ホームへリダイレクト
+        navigate("/filtering"); // ログインしている場合、ホームへリダイレクト
       }
     });
   }, [navigate]);
@@ -43,7 +43,7 @@ export const Auth: React.FC = () => {
         await signInWithEmailAndPassword(auth, email, password);
         alert("Sign in succeeded.");
       }
-      navigate("/home");
+      navigate("/filtering");
     } catch (error) {
       console.error("Authentication error", error);
       alert("Authentication failed!");
@@ -55,7 +55,7 @@ export const Auth: React.FC = () => {
     try {
       await signInWithPopup(auth, provider);
       alert("Google sign in succeeded.");
-      navigate("/home");
+      navigate("/filtering");
     } catch (error) {
       console.error("Google sign in failed!", error);
       alert("Google sign in failed!");
