@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react"
 import { Box, TextField, Typography, Button, MenuItem, Select } from "@mui/material"
 import { collection, addDoc, getDocs } from "firebase/firestore"
 import { db } from "../firebase"
-import { Box, TextField, Typography, Button } from "@mui/material"
 import { auth } from "../firebase"
 import { useNavigate } from "react-router-dom"
 
-export const RestaurantFilter: React.FC = () => {
+const RestaurantFilter: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<null | object>(null)
   const navigate = useNavigate()
 
@@ -20,7 +19,7 @@ export const RestaurantFilter: React.FC = () => {
     })
     return () => unsubscribe()
   }, [navigate])
-  
+
   const [location, setLocation] = useState("")
   const [distance, setDistance] = useState<string>("")
   const [minBudget, setMinBudget] = useState<string>("")
@@ -232,3 +231,5 @@ export const RestaurantFilter: React.FC = () => {
     </Box>
   )
 }
+
+export default RestaurantFilter
