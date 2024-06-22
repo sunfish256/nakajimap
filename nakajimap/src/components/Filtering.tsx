@@ -1,24 +1,22 @@
 import React, { useState, useEffect } from "react"
 import { Box, TextField, Typography, Button } from "@mui/material"
 import { auth } from "../firebase"
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom"
 
 export const RestaurantFilter: React.FC = () => {
-  const [currentUser, setCurrentUser] = useState<null | object>(null);
-  const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState<null | object>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(user => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        setCurrentUser(user);
+        setCurrentUser(user)
       } else {
-        navigate("/login");
+        navigate("/login")
       }
-    });
-    return () => unsubscribe();
-  }, [navigate]);
-
-
+    })
+    return () => unsubscribe()
+  }, [navigate])
 
   const [location, setLocation] = useState("")
   const [distance, setDistance] = useState<string>("")
@@ -48,7 +46,7 @@ export const RestaurantFilter: React.FC = () => {
   }
 
   return (
-    <Box sx={{ width: 1103, margin: "normal" }}>
+    <Box sx={{ margin: "normal" }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
         <TextField
           label="エリア・駅"
@@ -57,6 +55,7 @@ export const RestaurantFilter: React.FC = () => {
           fullWidth
           margin="normal"
           placeholder="例: 東京駅"
+          style={{ backgroundColor: "#fcfcfc" }}
         />
         <Typography sx={{ whiteSpace: "nowrap" }}>周辺</Typography>
         <TextField
@@ -68,6 +67,7 @@ export const RestaurantFilter: React.FC = () => {
           margin="normal"
           placeholder="800"
           inputProps={{ step: 100, min: 100 }}
+          style={{ backgroundColor: "#fcfcfc" }}
         />
         <Typography sx={{ whiteSpace: "nowrap" }}>m以内</Typography>
       </Box>
@@ -79,6 +79,7 @@ export const RestaurantFilter: React.FC = () => {
           fullWidth
           margin="normal"
           placeholder="例: 和食"
+          style={{ backgroundColor: "#fcfcfc" }}
         />
         <Typography sx={{ whiteSpace: "nowrap" }}>¥</Typography>
         <TextField
@@ -88,6 +89,7 @@ export const RestaurantFilter: React.FC = () => {
           onChange={(e) => setMinBudget(e.target.value)}
           inputProps={{ step: 500, min: 0 }}
           placeholder="1000"
+          style={{ backgroundColor: "#fcfcfc" }}
         />
         <Typography sx={{ whiteSpace: "nowrap" }}>~</Typography>
         <TextField
@@ -97,6 +99,7 @@ export const RestaurantFilter: React.FC = () => {
           onChange={(e) => setMaxBudget(e.target.value)}
           inputProps={{ step: 500, min: 0 }}
           placeholder="3000"
+          style={{ backgroundColor: "#fcfcfc" }}
         />
       </Box>
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -108,6 +111,7 @@ export const RestaurantFilter: React.FC = () => {
           fullWidth
           margin="normal"
           inputProps={{ step: 10, min: 0 }}
+          style={{ backgroundColor: "#fcfcfc" }}
         />
         <TextField
           label="☆評価の数はいくつ以上か"
@@ -117,6 +121,7 @@ export const RestaurantFilter: React.FC = () => {
           fullWidth
           margin="normal"
           inputProps={{ step: 0.5, min: 0 }}
+          style={{ backgroundColor: "#fcfcfc" }}
         />
       </Box>
       <Box mt={3} sx={{ display: "flex", justifyContent: "flex-end" }}>
@@ -124,7 +129,26 @@ export const RestaurantFilter: React.FC = () => {
           検索
         </Button>
       </Box>
-      <Box mt={4}>
+      <Button
+        fullWidth
+        onClick={async () => {
+          try {
+            await auth.signOut()
+            navigate("/auth")
+          } catch (error) {
+            if (error instanceof Error) {
+              alert(error.message)
+            } else {
+              console.error("Unexpected error", error)
+            }
+          }
+        }}
+        style={{ marginTop: "0.5em", marginBottom: "0.5em" }}
+      >
+        Logout
+      </Button>
+
+      {/* <Box mt={4} style={{zoom: 0.8}}>
         <Typography variant="h6">入力された条件:</Typography>
         <Typography>場所: {filters.location}</Typography>
         <Typography>距離: {filters.distance} m以内</Typography>
@@ -133,27 +157,8 @@ export const RestaurantFilter: React.FC = () => {
         </Typography>
         <Typography>料理のジャンル: {filters.cuisine}</Typography>
         <Typography>口コミ数: {filters.reviewCount} 件以上</Typography>
-        <Typography>☆評価: {filters.rating} 以上</Typography>
       </Box>
-      <Button
-        fullWidth
-        onClick={async () => {
-          try {
-            await auth.signOut();
-            navigate("/auth");
-          } catch (error) {
-            if (error instanceof Error) {
-              alert(error.message);
-            } else {
-              console.error("Unexpected error", error);
-            }
-          }
-        }}
-        style={{ marginTop: "0.5em", marginBottom: "0.5em" }}
-      >
-        Logout
-      </Button>
-      
+      </Box> */}
     </Box>
   )
 }
