@@ -1,61 +1,66 @@
-import * as React from "react"
-import Avatar from "@mui/material/Avatar"
-import Button from "@mui/material/Button"
-import CssBaseline from "@mui/material/CssBaseline"
-import TextField from "@mui/material/TextField"
-import Link from "@mui/material/Link"
-import Grid from "@mui/material/Grid"
-import Box from "@mui/material/Box"
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined"
-import Typography from "@mui/material/Typography"
-import Container from "@mui/material/Container"
-import { useState } from "react"
+import * as React from "react";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import CssBaseline from "@mui/material/CssBaseline";
+import TextField from "@mui/material/TextField";
+import Link from "@mui/material/Link";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
-} from "firebase/auth"
-import { auth } from "../firebase"
+} from "firebase/auth";
+import { auth } from "../firebase";
 
 export const Auth: React.FC = () => {
-  const [isSignUp, setIsSignUp] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        navigate("/home"); // ログインしている場合、ホームへリダイレクト
+      }
+    });
+  }, [navigate]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const data = new FormData(event.currentTarget)
-    const email = data.get("email") as string
-    const password = data.get("password") as string
-    console.log({
-      email,
-      password,
-    })
-
+    event.preventDefault();
     try {
       if (isSignUp) {
-        createUserWithEmailAndPassword(auth, email, password)
-        alert("Registration succeeded.")
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("Registration succeeded.");
       } else {
-        await signInWithEmailAndPassword(auth, email, password)
-        alert("Sign in succeeded.")
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("Sign in succeeded.");
       }
+      navigate("/home");
     } catch (error) {
-      console.error("Authentication error", error)
-      alert("Authentication failed!")
+      console.error("Authentication error", error);
+      alert("Authentication failed!");
     }
-  }
+  };
 
   const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider()
+    const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider)
-      alert("Google sign in succeeded.")
+      await signInWithPopup(auth, provider);
+      alert("Google sign in succeeded.");
+      navigate("/home");
     } catch (error) {
-      console.error("Google sign in failed!")
+      console.error("Google sign in failed!", error);
+      alert("Google sign in failed!");
     }
-  }
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -86,7 +91,7 @@ export const Auth: React.FC = () => {
             autoFocus
             value={email}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setEmail(e.target.value)
+              setEmail(e.target.value);
             }}
           />
           <TextField
@@ -98,8 +103,9 @@ export const Auth: React.FC = () => {
             type="password"
             id="password"
             autoComplete="current-password"
+            value={password}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setPassword(e.target.value)
+              setPassword(e.target.value);
             }}
           />
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
@@ -117,13 +123,8 @@ export const Auth: React.FC = () => {
               </Link>
             </Grid>
           </Grid>
-
-          {/* <Button fullWidth variant="outlined" sx={{ mt: 3, mb: 2 }} onClick={() => setIsSignUp(!isSignUp)}>
-            {isSignUp ? "Switch to Sign In" : "Switch to Sign Up"}
-          </Button>
-          */}
         </Box>
       </Box>
     </Container>
-  )
-}
+  );
+};

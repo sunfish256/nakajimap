@@ -1,36 +1,17 @@
-import "./App.css"
-import Filtering from "./components/Filtering"
-import Map from "./components/Map"
-import SearchResult from "./components/Table"
-import { Auth } from "./components/Auth"
+import React from "react"
+import Home from "./pages/Home"
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
+import { Auth } from "./pages/Auth"
 
-function App() {
+const App: React.FC = () => {
   return (
-    <div>
-      <div className="sticky-header">
-        <h1>ここにロゴ・サイト名・ハンバーガーを配置する</h1>
-      </div>
-      <div className="container">
-        <div className="content">
-          <div className="filter">
-            <Filtering />
-          </div>
-        </div>
-        <div className="content">
-          <div className="result-title">
-            <h2>検索結果</h2>
-          </div>
-          <div className="result-items">
-            <div className="result-table">
-              <SearchResult />
-            </div>
-            <div className="result-map">
-              <Map />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Auth />} /> {/* デフォルトはAuthに */}
+      </Routes>
+    </Router>
   )
 }
 
