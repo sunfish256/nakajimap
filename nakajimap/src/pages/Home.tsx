@@ -1,6 +1,6 @@
-import Filtering from '../components/Filtering'
-import Map from '../components/Map'
-import SearchResult from '../components/Table'
+import RestaurantFilter from "../components/Filtering"
+import Map from "../components/Map"
+import SearchResult from "../components/Table"
 import "../Home.css"
 
 const Home: React.FC = () => {
@@ -12,7 +12,7 @@ const Home: React.FC = () => {
       <div className="container">
         <div className="content">
           <div className="filter">
-            <Filtering />
+            <RestaurantFilter />
           </div>
         </div>
         <div className="content">
@@ -31,6 +31,6 @@ const Home: React.FC = () => {
       </div>
     </div>
   )
-  }
+}
 
 export default Home

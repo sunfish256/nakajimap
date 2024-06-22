@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react"
-import { Box, TextField, Typography, Button } from "@mui/material"
+import { Box, TextField, Typography, Button, MenuItem, Select } from "@mui/material"
+import { collection, addDoc, getDocs } from "firebase/firestore"
+import { db } from "../firebase"
 import { auth } from "../firebase"
 import { useNavigate } from "react-router-dom"
 
-export const RestaurantFilter: React.FC = () => {
+const RestaurantFilter: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<null | object>(null)
   const navigate = useNavigate()
 
@@ -12,7 +14,7 @@ export const RestaurantFilter: React.FC = () => {
       if (user) {
         setCurrentUser(user)
       } else {
-        navigate("/login")
+        navigate("/auth")
       }
     })
     return () => unsubscribe()
@@ -33,6 +35,8 @@ export const RestaurantFilter: React.FC = () => {
     reviewCount: undefined,
     rating: undefined,
   })
+  const [savedFilters, setSavedFilters] = useState<any[]>([])
+  const [selectedFilter, setSelectedFilter] = useState("")
 
   const handleSearch = () => {
     setFilters({
@@ -43,6 +47,55 @@ export const RestaurantFilter: React.FC = () => {
       reviewCount: reviewCount ? parseInt(reviewCount) : undefined,
       rating: rating ? parseFloat(rating) : undefined,
     })
+  }
+  const handleSave = async () => {
+    console.log("handleSave function called") // デバッグ用メッセージ
+    try {
+      await addDoc(collection(db, "filters"), {
+        location,
+        distance,
+        minBudget,
+        maxBudget,
+        cuisine,
+        reviewCount,
+        rating,
+      })
+      console.log("handleSave function finished") // デバッグ用メッセージ
+      alert("フィルタリング条件が保存されました！")
+      fetchSavedFilters()
+    } catch (error) {
+      console.log("handleSave function errored") // デバッグ用メッセージ
+      console.error("Error adding document: ", error.message)
+    }
+  }
+
+  const fetchSavedFilters = async () => {
+    console.log("fetchSavedFilters function called") // デバッグ用メッセージ
+    const querySnapshot = await getDocs(collection(db, "filters"))
+    const filtersList: any[] = []
+    querySnapshot.forEach((doc) => {
+      filtersList.push({ id: doc.id, ...doc.data() })
+    })
+    setSavedFilters(filtersList)
+  }
+
+  useEffect(() => {
+    fetchSavedFilters()
+  }, [])
+
+  const handleFilterSelect = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const filterId = event.target.value as string
+    const selected = savedFilters.find((filter) => filter.id === filterId)
+    if (selected) {
+      setLocation(selected.location)
+      setDistance(selected.distance)
+      setMinBudget(selected.minBudget)
+      setMaxBudget(selected.maxBudget)
+      setCuisine(selected.cuisine)
+      setReviewCount(selected.reviewCount)
+      setRating(selected.rating)
+    }
+    setSelectedFilter(filterId)
   }
 
   return (
@@ -120,13 +173,29 @@ export const RestaurantFilter: React.FC = () => {
           onChange={(e) => setRating(e.target.value)}
           fullWidth
           margin="normal"
-          inputProps={{ step: 0.5, min: 0 }}
+          inputProps={{ step: 0.5, min: 0, max: 5.0 }}
           style={{ backgroundColor: "#fcfcfc" }}
         />
       </Box>
       <Box mt={3} sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Typography variant="h6">お気に入りフィルタを選択:</Typography>
+        <Select value={selectedFilter} onChange={handleFilterSelect} displayEmpty fullWidth>
+          <MenuItem value="" disabled>
+            フィルタを選択
+          </MenuItem>
+          {savedFilters.map((filter) => (
+            <MenuItem key={filter.id} value={filter.id}>
+              {`${filter.location} | ${filter.distance}m以内 | ${filter.cuisine} | ¥${filter.minBudget} - ¥${filter.maxBudget} | 口コミ${filter.reviewCount}件以上 | ☆${filter.rating}以上`}
+            </MenuItem>
+          ))}
+        </Select>
+      </Box>
+      <Box mt={3} sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
         <Button variant="contained" color="primary" onClick={handleSearch}>
           検索
+        </Button>
+        <Button variant="outlined" color="secondary" onClick={handleSave}>
+          保存
         </Button>
       </Box>
       <Button
