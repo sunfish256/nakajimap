@@ -1,3 +1,4 @@
+/// <reference types="@types/google.maps" />
 import React, { useEffect } from "react"
 
 declare global {

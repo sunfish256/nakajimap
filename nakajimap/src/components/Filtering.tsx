@@ -2,7 +2,25 @@ import React, { useState, useEffect } from "react"
 import { Box, TextField, Typography, Button, MenuItem, Select } from "@mui/material"
 import { collection, addDoc, getDocs } from "firebase/firestore"
 import { db } from "../firebase"
-const RestaurantFilter: React.FC = () => {
+import { Box, TextField, Typography, Button } from "@mui/material"
+import { auth } from "../firebase"
+import { useNavigate } from "react-router-dom"
+
+export const RestaurantFilter: React.FC = () => {
+  const [currentUser, setCurrentUser] = useState<null | object>(null)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setCurrentUser(user)
+      } else {
+        navigate("/auth")
+      }
+    })
+    return () => unsubscribe()
+  }, [navigate])
+  
   const [location, setLocation] = useState("")
   const [distance, setDistance] = useState<string>("")
   const [minBudget, setMinBudget] = useState<string>("")
@@ -181,6 +199,25 @@ const RestaurantFilter: React.FC = () => {
           保存
         </Button>
       </Box>
+      <Button
+        fullWidth
+        onClick={async () => {
+          try {
+            await auth.signOut()
+            navigate("/auth")
+          } catch (error) {
+            if (error instanceof Error) {
+              alert(error.message)
+            } else {
+              console.error("Unexpected error", error)
+            }
+          }
+        }}
+        style={{ marginTop: "0.5em", marginBottom: "0.5em" }}
+      >
+        Logout
+      </Button>
+
       {/* <Box mt={4} style={{zoom: 0.8}}>
         <Typography variant="h6">入力された条件:</Typography>
         <Typography>場所: {filters.location}</Typography>
@@ -190,10 +227,8 @@ const RestaurantFilter: React.FC = () => {
         </Typography>
         <Typography>料理のジャンル: {filters.cuisine}</Typography>
         <Typography>口コミ数: {filters.reviewCount} 件以上</Typography>
-        <Typography>☆評価: {filters.rating} 以上</Typography>
+      </Box>
       </Box> */}
     </Box>
   )
 }
-
-export default RestaurantFilter

@@ -1,0 +1,85 @@
+/* Webkitブラウザ用のスクロールバースタイル */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background-color: #eee; /* スクロールバーエリアの色 */
+}
+::-webkit-scrollbar-thumb {
+  background-color: #aaa; /* スクロールバーの色 */
+  border-radius: 3px; /* 角を丸める */
+}
+
+/* ページ全体の設定 */
+html,
+body {
+  background-color: #fffbf6;
+  zoom: 0.95; /* ホーム画面がデカすぎたため縮小 */
+  margin: 0px;
+}
+
+/* ページ上部の固定ヘッダー */
+.sticky-header {
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100px;
+  width: 100%;
+  background-color: #ddd;
+  border-bottom: 4px solid #666;
+}
+
+/* 画面全体のスタイル */
+.container {
+  display: flex;
+  flex-direction: column; /* 垂直配置 */
+  align-items: center; /* 上下中央揃え */
+  justify-content: center; /* 左右中央揃え */
+  min-width: 1260px; /* 拡大時の.contentはみ出しを防ぐ用 */
+  margin-top: 120px; /* ヘッダーの下にコンテンツを配置 */
+}
+
+/* 画面内に垂直配置するコンテンツの基本スタイル */
+.content {
+  width: 1200px; /* これを基準に横幅を揃える */
+  margin: 20px;
+  border: 3px solid #889;
+  border-radius: 6px;
+}
+
+.filter {
+  margin: 30px;
+}
+
+.result-title {
+  color: #57b;
+  margin-left: 30px;
+}
+
+.result-items {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between; /* 左右両端揃え */
+  width: 1140px;
+  margin: 30px;
+  margin-top: 0px;
+}
+
+.result-table {
+  height: 420px;
+  width: 680px;
+  border: 1px solid #aaa;
+}
+
+.result-map {
+  aspect-ratio: 1 / 1;
+  height: 420px;
+  width: 420px;
+  border: 1px solid #aaa;
+}
