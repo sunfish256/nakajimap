@@ -1,9 +1,12 @@
-import RestaurantFilter from "../components/Filtering"
+import React, { useState } from "react"
+import RestaurantFilter from "../components/Filter"
 import Map from "../components/Map"
 import SearchResult from "../components/Table"
 import "../Home.css"
 
 const Home: React.FC = () => {
+  const [results, setResults] = useState<any[]>([])
+
   return (
     <div>
       <div className="sticky-header">
@@ -12,7 +15,7 @@ const Home: React.FC = () => {
       <div className="container">
         <div className="content">
           <div className="filter">
-            <RestaurantFilter />
+            <RestaurantFilter setResults={setResults}/>
           </div>
         </div>
         <div className="content">
@@ -21,10 +24,10 @@ const Home: React.FC = () => {
           </div>
           <div className="result-items">
             <div className="result-table">
-              <SearchResult />
+              <SearchResult rows={results}/>
             </div>
             <div className="result-map">
-              <Map />
+              <Map results={results}/>
             </div>
           </div>
         </div>
