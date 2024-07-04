@@ -12,6 +12,10 @@ import TableHead from "@mui/material/TableHead"
 import TableRow from "@mui/material/TableRow"
 import TableSortLabel from "@mui/material/TableSortLabel"
 
+interface TableProps {
+  results: any[];
+}
+
 function createData(star: number, n_review: number, shop: string, bookmark: boolean) {
   return { star, n_review, shop, bookmark }
 }

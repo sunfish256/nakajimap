@@ -1,11 +1,17 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useContext } from "react"
 import { Box, TextField, Typography, Button, MenuItem, Select } from "@mui/material"
 import { collection, addDoc, getDocs } from "firebase/firestore"
 import { db } from "../firebase"
 import { auth } from "../firebase"
 import { useNavigate } from "react-router-dom"
+import { searchNearbyRestaurants } from '../functions/Search'
 
-const RestaurantFilter: React.FC = () => {
+interface FilterProps {
+  setResults: React.Dispatch<React.SetStateAction<any[]>>
+}
+
+
+const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const [currentUser, setCurrentUser] = useState<null | object>(null)
   const navigate = useNavigate()
 
@@ -21,56 +27,43 @@ const RestaurantFilter: React.FC = () => {
   }, [navigate])
 
   const [location, setLocation] = useState("")
-  const [distance, setDistance] = useState<string>("")
-  const [minBudget, setMinBudget] = useState<string>("")
-  const [maxBudget, setMaxBudget] = useState<string>("")
+  const [radius, setRadius] = useState<number>()
+  const [minBudget, setMinBudget] = useState<number>()
+  const [maxBudget, setMaxBudget] = useState<number>()
   const [cuisine, setCuisine] = useState("")
-  const [reviewCount, setReviewCount] = useState<string>("0")
-  const [rating, setRating] = useState<string>("0")
-  const [filters, setFilters] = useState({
-    location: "",
-    distance: undefined,
-    budget: [0, undefined],
-    cuisine: "",
-    reviewCount: undefined,
-    rating: undefined,
-  })
+  const [reviewCount, setReviewCount] = useState<number>()
+  const [rating, setRating] = useState<number>()
+
   const [savedFilters, setSavedFilters] = useState<any[]>([])
   const [selectedFilter, setSelectedFilter] = useState("")
 
-  const handleSearch = () => {
-    setFilters({
-      location,
-      distance: distance ? parseInt(distance) : undefined,
-      budget: [parseInt(minBudget) || 0, maxBudget ? parseInt(maxBudget) : undefined],
-      cuisine,
-      reviewCount: reviewCount ? parseInt(reviewCount) : undefined,
-      rating: rating ? parseFloat(rating) : undefined,
-    })
+
+  const handleSearch = async () => {
+    if (!location) return
+    const results = await searchNearbyRestaurants(location, radius, minBudget, maxBudget, cuisine, reviewCount, rating)
+    console.log(results) // 検索結果を表示するためのログ
+    setResults(results) // 親コンポーネントの状態を更新
   }
+
   const handleSave = async () => {
-    console.log("handleSave function called") // デバッグ用メッセージ
     try {
       await addDoc(collection(db, "filters"), {
         location,
-        distance,
+        radius,
         minBudget,
         maxBudget,
         cuisine,
         reviewCount,
         rating,
       })
-      console.log("handleSave function finished") // デバッグ用メッセージ
       alert("フィルタリング条件が保存されました！")
       fetchSavedFilters()
     } catch (error) {
-      console.log("handleSave function errored") // デバッグ用メッセージ
       console.error("Error adding document: ", error.message)
     }
   }
 
   const fetchSavedFilters = async () => {
-    console.log("fetchSavedFilters function called") // デバッグ用メッセージ
     const querySnapshot = await getDocs(collection(db, "filters"))
     const filtersList: any[] = []
     querySnapshot.forEach((doc) => {
@@ -88,7 +81,7 @@ const RestaurantFilter: React.FC = () => {
     const selected = savedFilters.find((filter) => filter.id === filterId)
     if (selected) {
       setLocation(selected.location)
-      setDistance(selected.distance)
+      setRadius(selected.radius)
       setMinBudget(selected.minBudget)
       setMaxBudget(selected.maxBudget)
       setCuisine(selected.cuisine)
@@ -114,8 +107,8 @@ const RestaurantFilter: React.FC = () => {
         <TextField
           label="範囲"
           type="number"
-          value={distance}
-          onChange={(e) => setDistance(e.target.value)}
+          value={radius}
+          onChange={(e) => setRadius(e.target.value)}
           fullWidth
           margin="normal"
           placeholder="800"
@@ -185,7 +178,7 @@ const RestaurantFilter: React.FC = () => {
           </MenuItem>
           {savedFilters.map((filter) => (
             <MenuItem key={filter.id} value={filter.id}>
-              {`${filter.location} | ${filter.distance}m以内 | ${filter.cuisine} | ¥${filter.minBudget} - ¥${filter.maxBudget} | 口コミ${filter.reviewCount}件以上 | ☆${filter.rating}以上`}
+              {`${filter.location} | ${filter.radius}m以内 | ${filter.cuisine} | ¥${filter.minBudget} - ¥${filter.maxBudget} | 口コミ${filter.reviewCount}件以上 | ☆${filter.rating}以上`}
             </MenuItem>
           ))}
         </Select>
@@ -220,7 +213,7 @@ const RestaurantFilter: React.FC = () => {
       {/* <Box mt={4} style={{zoom: 0.8}}>
         <Typography variant="h6">入力された条件:</Typography>
         <Typography>場所: {filters.location}</Typography>
-        <Typography>距離: {filters.distance} m以内</Typography>
+        <Typography>距離: {filters.radius} m以内</Typography>
         <Typography>
           予算: ¥{filters.budget[0]} - {filters.budget[1]}
         </Typography>
