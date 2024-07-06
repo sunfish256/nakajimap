@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useContext } from "react"
 import { Box, TextField, Typography, Button, MenuItem, Select } from "@mui/material"
-import { collection, addDoc, getDocs } from "firebase/firestore"
-import { db } from "../firebase"
-import { auth } from "../firebase"
+import { query, where, collection, addDoc, getDocs } from "firebase/firestore"
+import { db, auth } from "../firebase"
 import { useNavigate } from "react-router-dom"
-import { searchNearbyRestaurants } from '../functions/Search'
+import { searchNearbyRestaurants } from "../functions/Search"
 
 interface FilterProps {
   setResults: React.Dispatch<React.SetStateAction<any[]>>
 }
-
 
 const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const [currentUser, setCurrentUser] = useState<null | object>(null)
@@ -37,7 +35,6 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const [savedFilters, setSavedFilters] = useState<any[]>([])
   const [selectedFilter, setSelectedFilter] = useState("")
 
-
   const handleSearch = async () => {
     if (!location) return
     const results = await searchNearbyRestaurants(location, radius, minBudget, maxBudget, cuisine, reviewCount, rating)
@@ -48,6 +45,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const handleSave = async () => {
     try {
       await addDoc(collection(db, "filters"), {
+        userId: currentUser.uid,
         location,
         radius,
         minBudget,
@@ -74,7 +72,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
 
   useEffect(() => {
     fetchSavedFilters()
-  }, [])
+  }, [currentUser])
 
   const handleFilterSelect = (event: React.ChangeEvent<{ value: unknown }>) => {
     const filterId = event.target.value as string
@@ -191,24 +189,6 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           保存
         </Button>
       </Box>
-      <Button
-        fullWidth
-        onClick={async () => {
-          try {
-            await auth.signOut()
-            navigate("/auth")
-          } catch (error) {
-            if (error instanceof Error) {
-              alert(error.message)
-            } else {
-              console.error("Unexpected error", error)
-            }
-          }
-        }}
-        style={{ marginTop: "0.5em", marginBottom: "0.5em" }}
-      >
-        Logout
-      </Button>
 
       {/* <Box mt={4} style={{zoom: 0.8}}>
         <Typography variant="h6">入力された条件:</Typography>
