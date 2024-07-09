@@ -9,9 +9,6 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      {/* <div className="sticky-header">
-        <h1>ここにロゴ・サイト名・ハンバーガーを配置する</h1>
-      </div> */}
       <div className="container">
         <div className="content">
           <div className="filter">

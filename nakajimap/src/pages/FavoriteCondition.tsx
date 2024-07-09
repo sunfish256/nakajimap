@@ -3,24 +3,11 @@ import { db, auth } from "../firebase"
 import { Box, TextField, Typography, Button, Select, MenuItem } from '@mui/material'
 import { query, where, collection, getDocs } from 'firebase/firestore'
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "../AuthContext"
+  
 
 const FavoriteCondition: React.FC = () => {
-  console.log("FavoriteCondition called")
-  const [currentUser, setCurrentUser] = useState<null | object>(null)
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        setCurrentUser(user)
-      } else {
-        navigate("/auth")
-      }
-    })
-    return () => unsubscribe()
-  }, [navigate])
-
-
+  const { currentUser } = useAuth()
   const [savedFilters, setSavedFilters] = useState<any[]>([])
   const [filters, setFilters] = useState({
     location: "",

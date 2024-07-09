@@ -18,20 +18,21 @@ import {
   GoogleAuthProvider,
 } from "firebase/auth";
 import { auth } from "../firebase";
+import { useAuth } from "../AuthContext"
+
 
 export const Auth: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { currentUser } = useAuth()
 
   useEffect(() => {
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        navigate("/home"); // ログインしている場合、ホームへリダイレクト
-      }
-    });
-  }, [navigate]);
+    if (currentUser) {
+      navigate("/home"); // ログインしている場合、ホームへリダイレクト
+    }
+  }, [currentUser, navigate]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
