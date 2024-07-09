@@ -12,7 +12,7 @@ const Home: React.FC = () => {
       <div className="container">
         <div className="content">
           <div className="filter">
-            <RestaurantFilter setResults={setResults}/>
+            <RestaurantFilter setResults={setResults} />
           </div>
         </div>
         <div className="content">
@@ -21,10 +21,10 @@ const Home: React.FC = () => {
           </div>
           <div className="result-items">
             <div className="result-table">
-              <SearchResult rows={results}/>
+              <SearchResult results={results} />
             </div>
             <div className="result-map">
-              <Map results={results}/>
+              <Map results={results} />
             </div>
           </div>
         </div>
