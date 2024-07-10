@@ -76,17 +76,24 @@ const Map: React.FC<MapProps> = ({ results }) => {
   useEffect(() => {
     if (mapInstanceRef.current) {
       // 既存のマーカーを全て削除
-      markers.forEach(marker => marker.setMap(null))
+      markers.forEach((marker) => marker.setMap(null))
       setMarkers([])
 
       const newMarkers: google.maps.Marker[] = []
+      const bounds = new google.maps.LatLngBounds()
 
       results.forEach((result) => {
         // console.log(result)
-        const lat = typeof result.geometry.location.lat === 'function' ? result.geometry.location.lat() : result.geometry.location.lat
-        const lng = typeof result.geometry.location.lng === 'function' ? result.geometry.location.lng() : result.geometry.location.lng        
+        const lat =
+          typeof result.geometry.location.lat === "function"
+            ? result.geometry.location.lat()
+            : result.geometry.location.lat
+        const lng =
+          typeof result.geometry.location.lng === "function"
+            ? result.geometry.location.lng()
+            : result.geometry.location.lng
 
-        if (typeof lat === 'number' && typeof lng === 'number') {
+        if (typeof lat === "number" && typeof lng === "number") {
           const marker = new google.maps.Marker({
             position: { lat, lng },
             map: mapInstanceRef.current,
@@ -113,13 +120,14 @@ const Map: React.FC<MapProps> = ({ results }) => {
             // 新しい情報ウィンドウを開く
             infoWindow.open(mapInstanceRef.current, marker)
             // 現在の情報ウィンドウを更新
-            currentInfoWindowRef.current = infoWindow           
+            currentInfoWindowRef.current = infoWindow
           })
 
-          newMarkers.push(marker)                      
+          newMarkers.push(marker)
+          bounds.extend(marker.getPosition() as google.maps.LatLng)
         } else {
-          console.error('Invalid lat or lng value:', lat, lng)
-        }          
+          console.error("Invalid lat or lng value:", lat, lng)
+        }
       })
 
       // マーカーの配列を更新
@@ -127,15 +135,12 @@ const Map: React.FC<MapProps> = ({ results }) => {
 
       // 最後のピンの位置にマップの中心を移動
       if (newMarkers.length > 0) {
-        const lastMarkerPosition = newMarkers[newMarkers.length - 1].getPosition()
-        if (lastMarkerPosition) {
-          mapInstanceRef.current.setCenter(lastMarkerPosition)
-        }
-      }      
+        mapInstanceRef.current.fitBounds(bounds)
+      }
     }
   }, [results])
 
-  return <div ref={mapRef} id="map" style={{ width: '100%', height: '100%' }} />
+  return <div ref={mapRef} id="map" style={{ width: "100%", height: "100%" }} />
 }
 
 export default Map
