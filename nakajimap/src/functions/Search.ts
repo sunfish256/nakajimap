@@ -31,12 +31,21 @@ export const searchNearbyRestaurants = (location: string, radius: number, minBud
           location: new google.maps.LatLng(lat, lng),
           radius: radius,
           type: ["restaurant"],
-          keyword: cuisine
+          keyword: cuisine,
+          minPriceLevel: minBudget,
+          maxPriceLevel: maxBudget          
         }
 
         service.nearbySearch(request, (results, status) => {
           if (status === google.maps.places.PlacesServiceStatus.OK) {
-            resolve(results)
+            // 口コミ数と評価のフィルタリングを適用
+            const filteredResults = results.filter(place => {
+              return (
+                (place.user_ratings_total >= reviewCount) &&
+                (place.rating >= rating)
+              )
+            })
+            resolve(filteredResults)
           } else {
             reject(new Error("PlacesService was not successful for the following reason: " + status))
           }
