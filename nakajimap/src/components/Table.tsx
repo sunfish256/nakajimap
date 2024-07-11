@@ -1,4 +1,4 @@
-import { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { styled } from "@mui/material/styles"
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import BookmarkIcon from "@mui/icons-material/Bookmark"
@@ -13,35 +13,28 @@ import TableRow from "@mui/material/TableRow"
 import TableSortLabel from "@mui/material/TableSortLabel"
 
 interface TableProps {
-  results: any[];
+  results: any[]
 }
 
 function createData(star: number, n_review: number, shop: string, bookmark: boolean) {
   return { star, n_review, shop, bookmark }
 }
 
-const initialRows = [
-  createData(4.5, 14, "AAAAAAAAAAAAAAAAAA", false),
-  createData(4.0, 237, "BBBBBBBBBBBBBB", false),
-  createData(4.5, 262, "CCCCCCCCCCCCCC", true),
-  createData(3.5, 305, "DDDDDDDDDDDDDDDDDDDDDD", false),
-  createData(4.0, 356, "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", true),
-  createData(4.2, 120, "FFFFFFFFFFFFFFFFFFFF", true),
-  createData(3.8, 210, "GGGGGGGGGGGGGGGGGGGGG", false),
-  createData(4.6, 190, "HHHHHHHHHHHHHHHHHHHHHH", false),
-  createData(3.9, 280, "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII", false),
-  createData(4.1, 150, "JJJJJJJJJJJJJJJJJJJJ", false),
-  createData(3.7, 280, "KKKKKKKKKKKKKKKKKKKKKK", false),
-  createData(4.3, 220, "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL", true),
-  createData(3.6, 330, "MMMMMMMMMMMMMMMMMMMMMMMM", false),
-  createData(4.4, 180, "NNNNNNNNNNNNNNNNNNNNNNNNNN", true),
-  createData(3.8, 280, "OOOOOOOOOOOOOOOOOOOOOOOOO", false),
-]
+const ScrollableTableCell = styled(TableCell)({
+  maxWidth: "240px",
+  overflowX: "auto",
+  whiteSpace: "nowrap",
+})
 
-export default function SearchResult() {
-  const [rows, setRows] = useState(initialRows)
+const SearchResult: React.FC<TableProps> = ({ results }) => {
+  const [rows, setRows] = useState(results)
   const [order, setOrder] = useState<"desc" | null>(null)
   const [orderBy, setOrderBy] = useState<string | null>(null)
+
+  useEffect(() => {
+    const newRows = results.map((result) => createData(result.rating, result.user_ratings_total, result.name, false))
+    setRows(newRows)
+  }, [results])
 
   const handleSortRequest = (property: string) => {
     if (orderBy === property && order === "desc") {
@@ -67,12 +60,6 @@ export default function SearchResult() {
         return 0
       })
     : rows
-
-  const ScrollableTableCell = styled(TableCell)({
-    maxWidth: "240px",
-    overflowX: "auto",
-    whiteSpace: "nowrap",
-  })
 
   return (
     <TableContainer
@@ -131,3 +118,5 @@ export default function SearchResult() {
     </TableContainer>
   )
 }
+
+export default SearchResult

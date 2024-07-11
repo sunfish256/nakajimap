@@ -23,44 +23,6 @@ const Map: React.FC<MapProps> = ({ results }) => {
         center: { lat: 35.681236, lng: 139.767125 }, // 東京駅の座標
         zoom: 15, // ズームレベルを調整
       })
-
-      // KITTE丸の内の座標
-      const kitteMarunouchi = { lat: 35.679575, lng: 139.764603 }
-
-      // KITTE丸の内にマーカーを追加
-      const marker = new google.maps.Marker({
-        position: kitteMarunouchi,
-        map: mapInstanceRef.current,
-        title: "KITTE Marunouchi",
-      })
-
-      // 情報ウィンドウのコンテンツ
-      const infoWindowContent = `
-        <div>
-          <h2>KITTE Marunouchi</h2>
-          <p>KITTE Marunouchi is a shopping and dining complex located near Tokyo Station.</p>
-        </div>
-      `
-
-      // 情報ウィンドウを作成
-      const infoWindow = new google.maps.InfoWindow({
-        content: infoWindowContent,
-      })
-
-      // マーカーがクリックされた時のイベントリスナーを追加
-      marker.addListener("click", () => {
-        // 既存の情報ウィンドウがある場合は閉じる
-        if (currentInfoWindowRef.current) {
-          currentInfoWindowRef.current.close()
-        }
-
-        // 新しい情報ウィンドウを開く
-        infoWindow.open(mapInstanceRef.current, marker)
-        // 現在の情報ウィンドウを更新
-        currentInfoWindowRef.current = infoWindow
-      })
-
-      setMarkers([marker])
     }
   }
 
@@ -102,8 +64,12 @@ const Map: React.FC<MapProps> = ({ results }) => {
 
           const infoWindowContent = `
             <div>
-              <h2>${result.name}</h2>
+              <p style="font-weight: bold; font-size: 1.2em;">${result.name}</p>
               <p>${result.vicinity}</p>
+              <p>評価: ${result.rating}</p>
+              <p>口コミ数: ${result.user_ratings_total}</p>
+              <p><a href="https://www.google.com/maps/place/?q=place_id:${result.place_id}" target="_blank">
+              グーグルマップで見る</a></p>
             </div>
           `
 
