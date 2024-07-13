@@ -2,17 +2,19 @@ import React, { useState, useEffect, useContext } from "react"
 import { Box, TextField, Typography, Button, MenuItem, Select } from "@mui/material"
 import { query, where, collection, addDoc, getDocs } from "firebase/firestore"
 import { db, auth } from "../firebase"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { searchNearbyRestaurants } from "../functions/Search"
 import { useAuth } from "../AuthContext"
-
 
 interface FilterProps {
   setResults: React.Dispatch<React.SetStateAction<any[]>>
 }
 
 const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
+  const loc = useLocation()
+  const searchParams = loc.state as any
   const { currentUser } = useAuth()
+  const [selected, setSelected] = useState()
   const [location, setLocation] = useState("")
   const [radius, setRadius] = useState<number>()
   const [minBudget, setMinBudget] = useState<number>()
@@ -20,11 +22,9 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const [cuisine, setCuisine] = useState("")
   const [reviewCount, setReviewCount] = useState<number>()
   const [rating, setRating] = useState<number>()
-
   const [savedFilters, setSavedFilters] = useState<any[]>([])
   const [selectedFilter, setSelectedFilter] = useState("")
   const [searchTriggered, setSearchTriggered] = useState(false)
-
 
   const priceLevels = [
     { label: "￥", p_level: 1 },
@@ -55,7 +55,15 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
       console.log("location", location)
       console.log("radius", radius)
       const performSearch = async () => {
-        const results = await searchNearbyRestaurants(location, radius, minBudget, maxBudget, cuisine, reviewCount, rating)
+        const results = await searchNearbyRestaurants(
+          location,
+          radius,
+          minBudget,
+          maxBudget,
+          cuisine,
+          reviewCount,
+          rating
+        )
         console.log(results) // 検索結果を表示するためのログ
         setResults(results) // 親コンポーネントの状態を更新
         setSearchTriggered(false) // Reset the search trigger
@@ -63,7 +71,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
       performSearch()
     }
   }, [searchTriggered])
-  
+
   const handleSave = async () => {
     try {
       await addDoc(collection(db, "filters"), {
@@ -93,12 +101,31 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   }
 
   useEffect(() => {
+    if (searchParams) {
+      handleSearch(searchParams)
+      setSelected(searchParams)
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    if (selected) {
+      setLocation(selected.location || "")
+      setRadius(selected.radius || "")
+      setMinBudget(selected.minBudget || "")
+      setMaxBudget(selected.maxBudget || "")
+      setCuisine(selected.cuisine || "")
+      setReviewCount(selected.reviewCount || "")
+      setRating(selected.rating || "")
+    }
+  }, [selected])
+
+  useEffect(() => {
     fetchSavedFilters()
   }, [currentUser])
 
   const handleFilterSelect = (event: React.ChangeEvent<{ value: unknown }>) => {
     const filterId = event.target.value as string
-    const selected = savedFilters.find((filter) => filter.id === filterId)
+    setSelected(savedFilters.find((filter) => filter.id === filterId))
     if (selected) {
       setLocation(selected.location)
       setRadius(selected.radius)
@@ -167,7 +194,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           </MenuItem>
           {priceLevels.map((level) => (
             <MenuItem key={level.label} value={level.p_level}>
-              { level.label }
+              {level.label}
             </MenuItem>
           ))}
         </Select>
@@ -176,12 +203,10 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           <MenuItem value="" disabled>
             予算上限
           </MenuItem>
-          <MenuItem value="">
-            指定なし
-          </MenuItem>
+          <MenuItem value="">指定なし</MenuItem>
           {priceLevels.map((level) => (
             <MenuItem key={level.label} value={level.p_level}>
-              { level.label }
+              {level.label}
             </MenuItem>
           ))}
         </Select>
