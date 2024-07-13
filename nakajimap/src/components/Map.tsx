@@ -42,6 +42,7 @@ const Map: React.FC<MapProps> = ({ results }) => {
       setMarkers([])
 
       const newMarkers: google.maps.Marker[] = []
+      const bounds = new google.maps.LatLngBounds()
 
       results.forEach((result) => {
         // console.log(result)
@@ -89,6 +90,7 @@ const Map: React.FC<MapProps> = ({ results }) => {
           })
 
           newMarkers.push(marker)
+          bounds.extend(marker.getPosition() as google.maps.LatLng)
         } else {
           console.error("Invalid lat or lng value:", lat, lng)
         }
@@ -99,10 +101,7 @@ const Map: React.FC<MapProps> = ({ results }) => {
 
       // 最後のピンの位置にマップの中心を移動
       if (newMarkers.length > 0) {
-        const lastMarkerPosition = newMarkers[newMarkers.length - 1].getPosition()
-        if (lastMarkerPosition) {
-          mapInstanceRef.current.setCenter(lastMarkerPosition)
-        }
+        mapInstanceRef.current.fitBounds(bounds)
       }
     }
   }, [results])

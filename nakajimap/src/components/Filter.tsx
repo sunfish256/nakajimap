@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom"
 import { searchNearbyRestaurants } from "../functions/Search"
 import { useAuth } from "../AuthContext"
 
+
 interface FilterProps {
   setResults: React.Dispatch<React.SetStateAction<any[]>>
 }
@@ -22,14 +23,47 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
 
   const [savedFilters, setSavedFilters] = useState<any[]>([])
   const [selectedFilter, setSelectedFilter] = useState("")
+  const [searchTriggered, setSearchTriggered] = useState(false)
+
+
+  const priceLevels = [
+    { label: "￥", p_level: 1 },
+    { label: "￥￥", p_level: 2 },
+    { label: "￥￥￥", p_level: 3 },
+    { label: "￥￥￥￥", p_level: 4 },
+  ]
 
   const handleSearch = async () => {
-    if (!location) return
-    const results = await searchNearbyRestaurants(location, radius, minBudget, maxBudget, cuisine, reviewCount, rating)
-    console.log(results) // 検索結果を表示するためのログ
-    setResults(results) // 親コンポーネントの状態を更新
+    // プログラム的に無いと動かない項目が欠損してた場合、デフォルト値で補完する
+    if (!location) {
+      setLocation("東京駅")
+    }
+    if (!radius) {
+      setRadius(800)
+    }
+    if (!reviewCount) {
+      setReviewCount(0)
+    }
+    if (!rating) {
+      setRating(0)
+    }
+    setSearchTriggered(true)
   }
 
+  useEffect(() => {
+    if (searchTriggered && location && radius) {
+      console.log("location", location)
+      console.log("radius", radius)
+      const performSearch = async () => {
+        const results = await searchNearbyRestaurants(location, radius, minBudget, maxBudget, cuisine, reviewCount, rating)
+        console.log(results) // 検索結果を表示するためのログ
+        setResults(results) // 親コンポーネントの状態を更新
+        setSearchTriggered(false) // Reset the search trigger
+      }
+      performSearch()
+    }
+  }, [searchTriggered])
+  
   const handleSave = async () => {
     try {
       await addDoc(collection(db, "filters"), {
@@ -77,6 +111,16 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
     setSelectedFilter(filterId)
   }
 
+  const handleMinBudgetChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const priceLevel = event.target.value as number
+    setMinBudget(priceLevel)
+  }
+
+  const handleMaxBudgetChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const priceLevel = event.target.value as number
+    setMaxBudget(priceLevel)
+  }
+
   return (
     <Box sx={{ margin: "normal" }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
@@ -113,33 +157,41 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           placeholder="例: 和食"
           style={{ backgroundColor: "#fcfcfc" }}
         />
-        <Typography sx={{ whiteSpace: "nowrap" }}>¥</Typography>
-        <TextField
-          label="予算下限"
-          type="number"
-          value={minBudget}
-          onChange={(e) => setMinBudget(e.target.value)}
-          inputProps={{ step: 500, min: 0 }}
-          placeholder="1000"
-          style={{ backgroundColor: "#fcfcfc" }}
-        />
+        <Typography sx={{ whiteSpace: "nowrap" }}>価格レベル</Typography>
+        <Select value={minBudget} onChange={handleMinBudgetChange} displayEmpty fullWidth>
+          <MenuItem value="" disabled>
+            予算下限
+          </MenuItem>
+          <MenuItem key={0} value={0}>
+            指定なし
+          </MenuItem>
+          {priceLevels.map((level) => (
+            <MenuItem key={level.label} value={level.p_level}>
+              { level.label }
+            </MenuItem>
+          ))}
+        </Select>
         <Typography sx={{ whiteSpace: "nowrap" }}>~</Typography>
-        <TextField
-          label="予算上限"
-          type="number"
-          value={maxBudget}
-          onChange={(e) => setMaxBudget(e.target.value)}
-          inputProps={{ step: 500, min: 0 }}
-          placeholder="3000"
-          style={{ backgroundColor: "#fcfcfc" }}
-        />
+        <Select value={maxBudget} onChange={handleMaxBudgetChange} displayEmpty fullWidth>
+          <MenuItem value="" disabled>
+            予算上限
+          </MenuItem>
+          <MenuItem value="">
+            指定なし
+          </MenuItem>
+          {priceLevels.map((level) => (
+            <MenuItem key={level.label} value={level.p_level}>
+              { level.label }
+            </MenuItem>
+          ))}
+        </Select>
       </Box>
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
         <TextField
           label="口コミ数はいくつ以上か"
           type="number"
           value={reviewCount}
-          onChange={(e) => setReviewCount(e.target.value)}
+          onChange={(e) => setReviewCount(Number(e.target.value))}
           fullWidth
           margin="normal"
           inputProps={{ step: 10, min: 0 }}
@@ -149,7 +201,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           label="☆評価の数はいくつ以上か"
           type="number"
           value={rating}
-          onChange={(e) => setRating(e.target.value)}
+          onChange={(e) => setRating(Number(e.target.value))}
           fullWidth
           margin="normal"
           inputProps={{ step: 0.5, min: 0, max: 5.0 }}
@@ -178,17 +230,24 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
         </Button>
       </Box>
 
-      {/* <Box mt={4} style={{zoom: 0.8}}>
-        <Typography variant="h6">入力された条件:</Typography>
-        <Typography>場所: {filters.location}</Typography>
-        <Typography>距離: {filters.radius} m以内</Typography>
-        <Typography>
-          予算: ¥{filters.budget[0]} - {filters.budget[1]}
-        </Typography>
-        <Typography>料理のジャンル: {filters.cuisine}</Typography>
-        <Typography>口コミ数: {filters.reviewCount} 件以上</Typography>
-      </Box>
-      </Box> */}
+      <Button
+        fullWidth
+        onClick={async () => {
+          try {
+            await auth.signOut()
+            navigate("/auth")
+          } catch (error) {
+            if (error instanceof Error) {
+              alert(error.message)
+            } else {
+              console.error("Unexpected error", error)
+            }
+          }
+        }}
+        style={{ marginTop: "0.5em", marginBottom: "0.5em" }}
+      >
+        Logout
+      </Button>
     </Box>
   )
 }
