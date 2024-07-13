@@ -1,32 +1,18 @@
 import React, { useState, useEffect, useContext } from "react"
 import { Box, TextField, Typography, Button, MenuItem, Select } from "@mui/material"
-import { collection, addDoc, getDocs } from "firebase/firestore"
-import { db } from "../firebase"
-import { auth } from "../firebase"
+import { query, where, collection, addDoc, getDocs } from "firebase/firestore"
+import { db, auth } from "../firebase"
 import { useNavigate } from "react-router-dom"
-import { searchNearbyRestaurants } from '../functions/Search'
+import { searchNearbyRestaurants } from "../functions/Search"
+import { useAuth } from "../AuthContext"
 
 
 interface FilterProps {
   setResults: React.Dispatch<React.SetStateAction<any[]>>
 }
 
-
 const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
-  const [currentUser, setCurrentUser] = useState<null | object>(null)
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        setCurrentUser(user)
-      } else {
-        navigate("/auth")
-      }
-    })
-    return () => unsubscribe()
-  }, [navigate])
-
+  const { currentUser } = useAuth()
   const [location, setLocation] = useState("")
   const [radius, setRadius] = useState<number>()
   const [minBudget, setMinBudget] = useState<number>()
@@ -38,6 +24,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const [savedFilters, setSavedFilters] = useState<any[]>([])
   const [selectedFilter, setSelectedFilter] = useState("")
   const [searchTriggered, setSearchTriggered] = useState(false)
+
 
   const priceLevels = [
     { label: "￥", p_level: 1 },
@@ -80,6 +67,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const handleSave = async () => {
     try {
       await addDoc(collection(db, "filters"), {
+        userId: currentUser.uid,
         location,
         radius,
         minBudget,
@@ -106,7 +94,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
 
   useEffect(() => {
     fetchSavedFilters()
-  }, [])
+  }, [currentUser])
 
   const handleFilterSelect = (event: React.ChangeEvent<{ value: unknown }>) => {
     const filterId = event.target.value as string
@@ -241,6 +229,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           保存
         </Button>
       </Box>
+
       <Button
         fullWidth
         onClick={async () => {

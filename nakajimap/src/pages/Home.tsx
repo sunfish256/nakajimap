@@ -2,16 +2,13 @@ import React, { useState } from "react"
 import RestaurantFilter from "../components/Filter"
 import Map from "../components/Map"
 import SearchResult from "../components/Table"
-import "../Home.css"
+import "../css/common.css"
 
 const Home: React.FC = () => {
   const [results, setResults] = useState<any[]>([])
 
   return (
     <div>
-      <div className="sticky-header">
-        <h1>ここにロゴ・サイト名・ハンバーガーを配置する</h1>
-      </div>
       <div className="container">
         <div className="content">
           <div className="filter">
