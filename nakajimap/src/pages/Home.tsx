@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useRef } from "react"
 import RestaurantFilter from "../components/Filter"
 import Map from "../components/Map"
 import SearchResult from "../components/Table"
@@ -6,6 +6,13 @@ import "../css/common.css"
 
 const Home: React.FC = () => {
   const [results, setResults] = useState<any[]>([])
+  const mapRef = useRef<{ openInfoWindow: (placeId: string) => void }>(null)
+
+  const handleShopClick = (placeId: string) => {
+    if (mapRef.current) {
+      mapRef.current.openInfoWindow(placeId)
+    }
+  }
 
   return (
     <div>
@@ -21,10 +28,10 @@ const Home: React.FC = () => {
           </div>
           <div className="result-items">
             <div className="result-table">
-              <SearchResult results={results} />
+              <SearchResult results={results} onShopClick={handleShopClick} />
             </div>
             <div className="result-map">
-              <Map results={results} />
+              <Map ref={mapRef} results={results} onMarkerClick={handleShopClick} />
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState, useEffect } from "react"
 import { styled } from "@mui/material/styles"
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import BookmarkIcon from "@mui/icons-material/Bookmark"
@@ -14,10 +14,11 @@ import TableSortLabel from "@mui/material/TableSortLabel"
 
 interface TableProps {
   results: any[]
+  onShopClick: (placeId: string) => void
 }
 
-function createData(star: number, n_review: number, shop: string, bookmark: boolean) {
-  return { star, n_review, shop, bookmark }
+function createData(star: number, n_review: number, shop: string, bookmark: boolean, placeId: string) {
+  return { star, n_review, shop, bookmark, placeId }
 }
 
 const ScrollableTableCell = styled(TableCell)({
@@ -26,13 +27,15 @@ const ScrollableTableCell = styled(TableCell)({
   whiteSpace: "nowrap",
 })
 
-const SearchResult: React.FC<TableProps> = ({ results }) => {
+const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
   const [rows, setRows] = useState(results)
   const [order, setOrder] = useState<"desc" | null>(null)
   const [orderBy, setOrderBy] = useState<string | null>(null)
 
   useEffect(() => {
-    const newRows = results.map((result) => createData(result.rating, result.user_ratings_total, result.name, false))
+    const newRows = results.map((result) =>
+      createData(result.rating, result.user_ratings_total, result.name, false, result.place_id)
+    )
     setRows(newRows)
   }, [results])
 
@@ -102,7 +105,11 @@ const SearchResult: React.FC<TableProps> = ({ results }) => {
                 {row.star}
               </TableCell>
               <TableCell align="left">{row.n_review}</TableCell>
-              <ScrollableTableCell align="left">{row.shop}</ScrollableTableCell>
+              <ScrollableTableCell align="left" onClick={() => onShopClick(row.placeId)}>
+                <span style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}>
+                  {row.shop}
+                </span>
+              </ScrollableTableCell>
               <TableCell align="left">
                 <Checkbox
                   icon={<BookmarkBorderIcon />}
