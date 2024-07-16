@@ -62,12 +62,20 @@ const Map: React.FC<MapProps> = ({ results }) => {
             title: result.name,
           })
 
+          const statusText =
+            result.business_status === "OPERATIONAL"
+              ? "営業中"
+              : result.business_status === "CLOSED_TEMPORARILY"
+              ? "営業時間外"
+              : result.business_status === "CLOSED_PERMANENTLY"
+              ? "閉店"
+              : ""
+
           const infoWindowContent = `
             <div>
               <p style="font-weight: bold; font-size: 1.2em;">${result.name}</p>
               <p>${result.vicinity}</p>
-              <p>評価: ${result.rating}</p>
-              <p>口コミ数: ${result.user_ratings_total}</p>
+              <p>評価：${result.rating}　口コミ数：${result.user_ratings_total}　${statusText}</p>
               <p><a href="https://www.google.com/maps/place/?q=place_id:${result.place_id}" target="_blank">
               グーグルマップで見る</a></p>
             </div>
