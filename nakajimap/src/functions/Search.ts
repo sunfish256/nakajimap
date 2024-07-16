@@ -1,17 +1,23 @@
-export const searchNearbyRestaurants = (location: string, radius: number, minBudget: number, maxBudget: number, cuisine: string, reviewCount: number, rating: number) => {
-
+export const searchNearbyRestaurants = (
+  location: string,
+  radius: number,
+  minBudget: number,
+  maxBudget: number,
+  cuisine: string,
+  reviewCount: number,
+  rating: number
+) => {
   return new Promise((resolve, reject) => {
-
     // mapを初期化(Map.tsxのmapオブジェクトとは別物)
-    const map = new google.maps.Map(document.createElement('div'), {
+    const map = new google.maps.Map(document.createElement("div"), {
       center: { lat: -34.397, lng: 150.644 },
       zoom: 8,
-    })    
+    })
 
     // Geocode APIを使用して住所を座標に変換
-    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-      location
-    )}&key=${import.meta.env.VITE_GOOGLEMAP_API_KEY}`
+    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${
+      import.meta.env.VITE_GOOGLEMAP_API_KEY
+    }`
 
     fetch(geocodeUrl)
       .then((response) => response.json())
@@ -33,23 +39,33 @@ export const searchNearbyRestaurants = (location: string, radius: number, minBud
           type: ["restaurant"],
           keyword: cuisine,
           minPriceLevel: minBudget,
-          maxPriceLevel: maxBudget          
+          maxPriceLevel: maxBudget,
         }
 
-        service.nearbySearch(request, (results, status) => {
+        const allResults = []
+
+        const processResults = (results, status, pagination) => {
           if (status === google.maps.places.PlacesServiceStatus.OK) {
-            // 口コミ数と評価のフィルタリングを適用
-            const filteredResults = results.filter(place => {
-              return (
-                (place.user_ratings_total >= reviewCount) &&
-                (place.rating >= rating)
-              )
+            const filteredResults = results.filter((place) => {
+              return place.user_ratings_total >= reviewCount && place.rating >= rating
             })
-            resolve(filteredResults)
+
+            allResults.push(...filteredResults)
+
+            if (pagination && pagination.hasNextPage) {
+              // 次のページの結果を取得する
+              pagination.nextPage()
+            } else {
+              // すべてのページの結果を取得し終えたらresolveする
+              resolve(allResults)
+            }
           } else {
             reject(new Error("PlacesService was not successful for the following reason: " + status))
           }
-        })
+        }
+
+        // 最初のnearbySearchを実行
+        service.nearbySearch(request, processResults)
       })
       .catch((error) => reject(error))
   })
