@@ -1,5 +1,5 @@
 /// <reference types="@types/google.maps" />
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react"
 
 declare global {
   interface Window {
@@ -9,25 +9,27 @@ declare global {
 
 interface MapProps {
   results: any[]
+  onMarkerClick: (placeId: string) => void
 }
 
-const Map: React.FC<MapProps> = ({ results }) => {
+const Map = forwardRef(({ results, onMarkerClick }: MapProps, ref) => {
   const mapRef = useRef<HTMLDivElement | null>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
-  const [markers, setMarkers] = useState<google.maps.Marker[]>([]) // マップに表示されているピンを格納し管理するフック
-  const currentInfoWindowRef = useRef<google.maps.InfoWindow | null>(null) // 表示されるinfoWindowを管理するフック
+  const [markers, setMarkers] = useState<
+    { marker: google.maps.Marker; infoWindow: google.maps.InfoWindow; placeId: string }[]
+  >([])
+  const currentInfoWindowRef = useRef<google.maps.InfoWindow | null>(null)
 
   const initMap = () => {
     if (mapRef.current) {
       mapInstanceRef.current = new google.maps.Map(mapRef.current, {
-        center: { lat: 35.681236, lng: 139.767125 }, // 東京駅の座標
-        zoom: 15, // ズームレベルを調整
+        center: { lat: 35.681236, lng: 139.767125 },
+        zoom: 15,
       })
     }
   }
 
   useEffect(() => {
-    // Google Maps APIがロードされているかチェック
     if (typeof google !== "undefined" && google.maps) {
       initMap()
     } else {
@@ -37,15 +39,13 @@ const Map: React.FC<MapProps> = ({ results }) => {
 
   useEffect(() => {
     if (mapInstanceRef.current) {
-      // 既存のマーカーを全て削除
-      markers.forEach((marker) => marker.setMap(null))
+      markers.forEach(({ marker }) => marker.setMap(null))
       setMarkers([])
 
-      const newMarkers: google.maps.Marker[] = []
+      const newMarkers: { marker: google.maps.Marker; infoWindow: google.maps.InfoWindow; placeId: string }[] = []
       const bounds = new google.maps.LatLngBounds()
 
       results.forEach((result) => {
-        // console.log(result)
         const lat =
           typeof result.geometry.location.lat === "function"
             ? result.geometry.location.lat()
@@ -78,35 +78,43 @@ const Map: React.FC<MapProps> = ({ results }) => {
           })
 
           marker.addListener("click", () => {
-            // 既存の情報ウィンドウがある場合は閉じる
             if (currentInfoWindowRef.current) {
               currentInfoWindowRef.current.close()
             }
 
-            // 新しい情報ウィンドウを開く
             infoWindow.open(mapInstanceRef.current, marker)
-            // 現在の情報ウィンドウを更新
             currentInfoWindowRef.current = infoWindow
           })
 
-          newMarkers.push(marker)
+          newMarkers.push({ marker, infoWindow, placeId: result.place_id })
           bounds.extend(marker.getPosition() as google.maps.LatLng)
         } else {
           console.error("Invalid lat or lng value:", lat, lng)
         }
       })
 
-      // マーカーの配列を更新
       setMarkers(newMarkers)
 
-      // 最後のピンの位置にマップの中心を移動
       if (newMarkers.length > 0) {
         mapInstanceRef.current.fitBounds(bounds)
       }
     }
   }, [results])
 
+  useImperativeHandle(ref, () => ({
+    openInfoWindow(placeId: string) {
+      const markerData = markers.find((marker) => marker.placeId === placeId)
+      if (markerData) {
+        if (currentInfoWindowRef.current) {
+          currentInfoWindowRef.current.close()
+        }
+        markerData.infoWindow.open(mapInstanceRef.current, markerData.marker)
+        currentInfoWindowRef.current = markerData.infoWindow
+      }
+    },
+  }))
+
   return <div ref={mapRef} id="map" style={{ width: "100%", height: "100%" }} />
-}
+})
 
 export default Map
