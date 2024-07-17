@@ -1,67 +1,66 @@
-import * as React from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
+import * as React from "react"
+import Avatar from "@mui/material/Avatar"
+import Button from "@mui/material/Button"
+import CssBaseline from "@mui/material/CssBaseline"
+import TextField from "@mui/material/TextField"
+import Link from "@mui/material/Link"
+import Grid from "@mui/material/Grid"
+import Box from "@mui/material/Box"
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined"
+import Typography from "@mui/material/Typography"
+import Container from "@mui/material/Container"
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  sendEmailVerification,
   signInWithPopup,
   GoogleAuthProvider,
-} from "firebase/auth";
-import { auth } from "../firebase";
+} from "firebase/auth"
+import { auth } from "../firebase"
 import { useAuth } from "../AuthContext"
 
-
 export const Auth: React.FC = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const [isSignUp, setIsSignUp] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const navigate = useNavigate()
   const { currentUser } = useAuth()
 
   useEffect(() => {
     if (currentUser) {
-      navigate("/home"); // ログインしている場合、ホームへリダイレクト
+      navigate("/home") // ログインしている場合、ホームへリダイレクト
     }
-  }, [currentUser, navigate]);
+  }, [currentUser, navigate])
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
     try {
       if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, email, password);
-        alert("Registration succeeded.");
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+        await sendEmailVerification(userCredential.user)
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
-        alert("Sign in succeeded.");
+        await signInWithEmailAndPassword(auth, email, password)
       }
-      navigate("/home");
+      navigate("/home")
     } catch (error) {
-      console.error("Authentication error", error);
-      alert("Authentication failed!");
+      console.error("Authentication error", error)
+      alert("Authentication failed!")
     }
-  };
+  }
 
   const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
+    const provider = new GoogleAuthProvider()
     try {
-      await signInWithPopup(auth, provider);
-      alert("Google sign in succeeded.");
-      navigate("/home");
+      await signInWithPopup(auth, provider)
+      alert("Google sign in succeeded.")
+      navigate("/home")
     } catch (error) {
-      console.error("Google sign in failed!", error);
-      alert("Google sign in failed!");
+      console.error("Google sign in failed!", error)
+      alert("Google sign in failed!")
     }
-  };
+  }
 
   return (
     <Container component="main" maxWidth="xs">
@@ -92,7 +91,7 @@ export const Auth: React.FC = () => {
             autoFocus
             value={email}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setEmail(e.target.value);
+              setEmail(e.target.value)
             }}
           />
           <TextField
@@ -106,7 +105,7 @@ export const Auth: React.FC = () => {
             autoComplete="current-password"
             value={password}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setPassword(e.target.value);
+              setPassword(e.target.value)
             }}
           />
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
@@ -127,5 +126,5 @@ export const Auth: React.FC = () => {
         </Box>
       </Box>
     </Container>
-  );
-};
+  )
+}
