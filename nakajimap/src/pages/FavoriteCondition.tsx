@@ -9,6 +9,16 @@ const FavoriteCondition: React.FC = () => {
   const navigate = useNavigate()
   const { currentUser } = useAuth()
   const [savedFilters, setSavedFilters] = useState<any[]>([])
+  const priceLevels = [
+    { label: "￥", p_level: 1 },
+    { label: "￥￥", p_level: 2 },
+    { label: "￥￥￥", p_level: 3 },
+    { label: "￥￥￥￥", p_level: 4 },
+  ]
+  const getPriceLabel = (level) => {
+    const priceLevel = priceLevels.find((pl) => pl.p_level === level)
+    return priceLevel ? priceLevel.label : ""
+  }
 
   const fetchSavedFilters = async () => {
     if (!currentUser) return
@@ -28,6 +38,7 @@ const FavoriteCondition: React.FC = () => {
 
   const handleSearch = (filter: any) => {
     navigate("/home", { state: filter })
+    console.log("filter", filter)
   }
 
   const handleDelete = async (id: string) => {
@@ -65,7 +76,7 @@ const FavoriteCondition: React.FC = () => {
             <TextField
               label="範囲"
               type="number"
-              value={filter.distance}
+              value={filter.radius}
               fullWidth
               margin="normal"
               InputProps={{ readOnly: true }}
@@ -82,11 +93,11 @@ const FavoriteCondition: React.FC = () => {
               InputProps={{ readOnly: true }}
               style={{ backgroundColor: "#fcfcfc" }}
             />
-            <Typography sx={{ whiteSpace: "nowrap" }}>¥</Typography>
+            <Typography sx={{ whiteSpace: "nowrap" }}>価格レベル</Typography>
             <TextField
               label="予算下限"
-              type="number"
-              value={filter.minBudget}
+              type="text"
+              value={getPriceLabel(filter.minBudget)}
               fullWidth
               margin="normal"
               InputProps={{ readOnly: true }}
@@ -95,8 +106,8 @@ const FavoriteCondition: React.FC = () => {
             <Typography sx={{ whiteSpace: "nowrap" }}>~</Typography>
             <TextField
               label="予算上限"
-              type="number"
-              value={filter.maxBudget}
+              type="text"
+              value={getPriceLabel(filter.maxBudget)}
               fullWidth
               margin="normal"
               InputProps={{ readOnly: true }}
