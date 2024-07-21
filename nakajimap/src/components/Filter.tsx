@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react"
 import { Box, TextField, Typography, Button, MenuItem, Select } from "@mui/material"
+import { SelectChangeEvent } from "@mui/material/Select"
 import { addDoc, collection, getDocs } from "firebase/firestore"
-import { db, auth } from "../firebase"
-import { useNavigate, useLocation } from "react-router-dom"
+import { db } from "../firebase"
+import { useLocation } from "react-router-dom"
 import { searchNearbyRestaurants } from "../functions/Search"
 import { useAuth } from "../AuthContext"
 
@@ -13,8 +14,8 @@ interface FilterProps {
 interface SearchParams {
   location: string
   radius: number
-  minBudget: number
-  maxBudget: number
+  minBudget?: number
+  maxBudget?: number
   cuisine: string
   reviewCount: number
   rating: number
@@ -28,14 +29,17 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const [radius, setRadius] = useState<number | undefined>(searchParams?.radius)
   const [minBudget, setMinBudget] = useState<number | undefined>(searchParams?.minBudget)
   const [maxBudget, setMaxBudget] = useState<number | undefined>(searchParams?.maxBudget)
+  // const [minBudget, setMinBudget] = useState<number>(searchParams?.minBudget || 0)
+  // const [maxBudget, setMaxBudget] = useState<number>(searchParams?.maxBudget || 4)
   const [cuisine, setCuisine] = useState<string>(searchParams?.cuisine || "")
-  const [reviewCount, setReviewCount] = useState<number | undefined>(searchParams?.reviewCount)
-  const [rating, setRating] = useState<number | undefined>(searchParams?.rating)
+  const [reviewCount, setReviewCount] = useState<number>(searchParams?.reviewCount || 0)
+  const [rating, setRating] = useState<number>(searchParams?.rating || 0)
   const [savedFilters, setSavedFilters] = useState<any[]>([])
   const [selectedFilter, setSelectedFilter] = useState("")
   const [searchTriggered, setSearchTriggered] = useState(false)
 
   const priceLevels = [
+    { label: "指定なし", p_level: undefined },
     { label: "￥", p_level: 1 },
     { label: "￥￥", p_level: 2 },
     { label: "￥￥￥", p_level: 3 },
@@ -56,13 +60,19 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
     params: SearchParams = {
       location: "東京駅",
       radius: 800,
-      minBudget: 1,
-      maxBudget: 4,
+      minBudget: undefined,
+      maxBudget: undefined,
       cuisine: "",
       reviewCount: 0,
       rating: 0,
     }
   ) => {
+
+    if (params.minBudget !== undefined && params.maxBudget !== undefined && params.minBudget > params.maxBudget) {
+      alert("最低価格レベルは最高価格レベル以下でなければなりません。")
+      return
+    }
+
     setLocation(params.location)
     setRadius(params.radius)
     setMinBudget(params.minBudget)
@@ -77,15 +87,17 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
     if (searchTriggered && location && radius) {
       console.log("location", location)
       console.log("radius", radius)
+      console.log("minBudget", minBudget)
+      console.log("maxBudget", maxBudget)      
       const performSearch = async () => {
         const results = await searchNearbyRestaurants(
           location,
           radius,
-          minBudget,
-          maxBudget,
           cuisine,
           reviewCount,
-          rating
+          rating,
+          minBudget,
+          maxBudget
         )
         console.log(results) // 検索結果を表示するためのログ
         setResults(results) // 親コンポーネントの状態を更新
@@ -96,21 +108,29 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   }, [searchTriggered])
 
   const handleSave = async () => {
-    try {
-      await addDoc(collection(db, "filters"), {
-        userId: currentUser.uid,
-        location,
-        radius,
-        minBudget,
-        maxBudget,
-        cuisine,
-        reviewCount,
-        rating,
-      })
-      console.log("フィルタリング条件が保存されました！")
-      fetchSavedFilters()
-    } catch (error) {
-      console.error("Error adding document: ", error.message)
+    if (currentUser) {
+      try {
+        await addDoc(collection(db, "filters"), {
+          userId: currentUser.uid,
+          location,
+          radius,
+          minBudget,
+          maxBudget,
+          cuisine,
+          reviewCount,
+          rating,
+        })
+        console.log("フィルタリング条件が保存されました！")
+        fetchSavedFilters()
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Error adding document: ", error.message)
+        } else {
+          console.error("An unknown error occurred")
+        }
+      }
+    } else {
+      console.error("No current user")
     }
   }
 
@@ -134,7 +154,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
     fetchSavedFilters()
   }, [currentUser])
 
-  const handleFilterSelect = (event: React.ChangeEvent<{ value: unknown }>) => {
+  const handleFilterSelect = (event: SelectChangeEvent<string>) => {
     const filterId = event.target.value as string
     const params = savedFilters.find((filter) => filter.id === filterId)
     if (params) {
@@ -143,13 +163,13 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
     setSelectedFilter(filterId)
   }
 
-  const handleMinBudgetChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    const priceLevel = event.target.value as number
+  const handleMinBudgetChange = (event: SelectChangeEvent<number | undefined>) => {
+    const priceLevel = event.target.value as number | undefined
     setMinBudget(priceLevel)
   }
 
-  const handleMaxBudgetChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    const priceLevel = event.target.value as number
+  const handleMaxBudgetChange = (event: SelectChangeEvent<number | undefined>) => {
+    const priceLevel = event.target.value as number | undefined
     setMaxBudget(priceLevel)
   }
 
@@ -163,6 +183,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           fullWidth
           margin="normal"
           placeholder="例: 東京駅"
+          InputLabelProps={{ shrink: true }}
           style={{ backgroundColor: "#fcfcfc" }}
         />
         <Typography sx={{ whiteSpace: "nowrap" }}>周辺</Typography>
@@ -175,6 +196,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           margin="normal"
           placeholder="800"
           inputProps={{ step: 100, min: 100 }}
+          InputLabelProps={{ shrink: true }}
           style={{ backgroundColor: "#fcfcfc" }}
         />
         <Typography sx={{ whiteSpace: "nowrap" }}>m以内</Typography>
@@ -187,6 +209,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           fullWidth
           margin="normal"
           placeholder="例: 和食"
+          InputLabelProps={{ shrink: true }}          
           style={{ backgroundColor: "#fcfcfc" }}
         />
         <Typography sx={{ whiteSpace: "nowrap" }}>価格レベル</Typography>
@@ -196,11 +219,11 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           displayEmpty
           fullWidth
         >
-          <MenuItem value="" disabled>
+          {/* <MenuItem value="" disabled>
             予算下限
-          </MenuItem>
-          <MenuItem value="">指定なし</MenuItem>
-          {priceLevels.map((level) => (
+          </MenuItem> */}
+          <MenuItem value={undefined}>指定なし</MenuItem>
+          {priceLevels.slice(1).map((level) => (
             <MenuItem key={level.label} value={level.p_level}>
               {level.label}
             </MenuItem>
@@ -213,11 +236,11 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           displayEmpty
           fullWidth
         >
-          <MenuItem value="" disabled>
+          {/* <MenuItem value="" disabled>
             予算上限
-          </MenuItem>
-          <MenuItem value="">指定なし</MenuItem>
-          {priceLevels.map((level) => (
+          </MenuItem> */}
+          <MenuItem value={undefined}>指定なし</MenuItem>
+          {priceLevels.slice(1).map((level) => (
             <MenuItem key={level.label} value={level.p_level}>
               {level.label}
             </MenuItem>
@@ -233,6 +256,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           fullWidth
           margin="normal"
           inputProps={{ step: 10, min: 0 }}
+          InputLabelProps={{ shrink: true }}
           style={{ backgroundColor: "#fcfcfc" }}
         />
         <TextField
@@ -243,6 +267,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           fullWidth
           margin="normal"
           inputProps={{ step: 0.5, min: 0, max: 5.0 }}
+          InputLabelProps={{ shrink: true }}          
           style={{ backgroundColor: "#fcfcfc" }}
         />
       </Box>
@@ -267,8 +292,8 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
             handleSearch({
               location,
               radius: radius ?? 800,
-              minBudget: minBudget ?? 1,
-              maxBudget: maxBudget ?? 4,
+              minBudget: minBudget,
+              maxBudget: maxBudget,
               cuisine,
               reviewCount: reviewCount ?? 0,
               rating: rating ?? 0,
