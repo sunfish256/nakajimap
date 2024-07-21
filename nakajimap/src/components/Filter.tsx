@@ -22,6 +22,15 @@ interface SearchParams {
 
 const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const loc = useLocation()
+  const defaultParams: SearchParams = {
+    location: "東京駅",
+    radius: 800,
+    minBudget: 1,
+    maxBudget: 4,
+    cuisine: "",
+    reviewCount: 0,
+    rating: 0,
+  }
   const searchParams = loc.state as SearchParams
   const { currentUser } = useAuth()
   const [location, setLocation] = useState<string>(searchParams?.location || "")
@@ -52,43 +61,57 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
     setRating(params.rating)
   }
 
-  const handleSearch = async (
-    params: SearchParams = {
-      location: "東京駅",
-      radius: 800,
-      minBudget: 1,
-      maxBudget: 4,
-      cuisine: "",
-      reviewCount: 0,
-      rating: 0,
+  const handleSearch = async (params: SearchParams) => {
+    if (!params.location) {
+      console.log("エリア・駅が空白のため、検索は実行されません。")
+      return
     }
-  ) => {
-    setLocation(params.location)
-    setRadius(params.radius)
-    setMinBudget(params.minBudget)
-    setMaxBudget(params.maxBudget)
-    setCuisine(params.cuisine)
-    setReviewCount(params.reviewCount)
-    setRating(params.rating)
+    if (!params.radius || params.radius <= 0) {
+      console.log("範囲が無効のため、検索は実行されません。")
+      return
+    }
+    const searchParams = {
+      location: params.location,
+      radius: params.radius,
+      minBudget: params.minBudget ?? defaultParams.minBudget,
+      maxBudget: params.maxBudget ?? defaultParams.maxBudget,
+      cuisine: params.cuisine ?? defaultParams.cuisine,
+      reviewCount: params.reviewCount ?? defaultParams.reviewCount,
+      rating: params.rating ?? defaultParams.rating,
+    }
+
+    console.log("searchParams", searchParams)
+
+    setLocation(searchParams.location)
+    setRadius(searchParams.radius)
+    setMinBudget(searchParams.minBudget)
+    setMaxBudget(searchParams.maxBudget)
+    setCuisine(searchParams.cuisine)
+    setReviewCount(searchParams.reviewCount)
+    setRating(searchParams.rating)
     setSearchTriggered(true)
   }
 
   useEffect(() => {
-    if (searchTriggered && location && radius) {
+    if (searchTriggered) {
       console.log("location", location)
       console.log("radius", radius)
       const performSearch = async () => {
-        const results = await searchNearbyRestaurants(
-          location,
-          radius,
-          minBudget,
-          maxBudget,
-          cuisine,
-          reviewCount,
-          rating
-        )
-        console.log(results) // 検索結果を表示するためのログ
-        setResults(results) // 親コンポーネントの状態を更新
+        try {
+          const results = await searchNearbyRestaurants(
+            location,
+            radius,
+            minBudget,
+            maxBudget,
+            cuisine,
+            reviewCount,
+            rating
+          )
+          console.log(results) // 検索結果を表示するためのログ
+          setResults(results) // 親コンポーネントの状態を更新
+        } catch (error) {
+          console.error("検索エラー:", error)
+        }
         setSearchTriggered(false) // Reset the search trigger
       }
       performSearch()
@@ -115,12 +138,17 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   }
 
   const fetchSavedFilters = async () => {
-    const querySnapshot = await getDocs(collection(db, "filters"))
-    const filtersList: any[] = []
-    querySnapshot.forEach((doc) => {
-      filtersList.push({ id: doc.id, ...doc.data() })
-    })
-    setSavedFilters(filtersList)
+    if (!currentUser) return
+    try {
+      const querySnapshot = await getDocs(collection(db, "filters"))
+      const filtersList: any[] = []
+      querySnapshot.forEach((doc) => {
+        filtersList.push({ id: doc.id, ...doc.data() })
+      })
+      setSavedFilters(filtersList)
+    } catch (error) {
+      console.error("Error fetching filters: ", error.message)
+    }
   }
 
   useEffect(() => {
@@ -158,7 +186,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
       <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
         <TextField
           label="エリア・駅"
-          value={location}
+          value={location !== undefined ? location : ""}
           onChange={(e) => setLocation(e.target.value)}
           fullWidth
           margin="normal"
@@ -182,7 +210,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
         <TextField
           label="料理のジャンル"
-          value={cuisine}
+          value={cuisine !== undefined ? cuisine : ""}
           onChange={(e) => setCuisine(e.target.value)}
           fullWidth
           margin="normal"
@@ -228,7 +256,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
         <TextField
           label="口コミ数はいくつ以上か"
           type="number"
-          value={reviewCount}
+          value={reviewCount !== undefined ? reviewCount.toString() : ""}
           onChange={(e) => setReviewCount(Number(e.target.value))}
           fullWidth
           margin="normal"
@@ -238,7 +266,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
         <TextField
           label="☆評価の数はいくつ以上か"
           type="number"
-          value={rating}
+          value={rating !== undefined ? rating : ""}
           onChange={(e) => setRating(Number(e.target.value))}
           fullWidth
           margin="normal"
