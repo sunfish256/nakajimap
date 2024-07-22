@@ -29,8 +29,6 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const [radius, setRadius] = useState<number | undefined>(searchParams?.radius)
   const [minBudget, setMinBudget] = useState<number | undefined>(searchParams?.minBudget)
   const [maxBudget, setMaxBudget] = useState<number | undefined>(searchParams?.maxBudget)
-  // const [minBudget, setMinBudget] = useState<number>(searchParams?.minBudget || 0)
-  // const [maxBudget, setMaxBudget] = useState<number>(searchParams?.maxBudget || 4)
   const [cuisine, setCuisine] = useState<string>(searchParams?.cuisine || "")
   const [reviewCount, setReviewCount] = useState<number>(searchParams?.reviewCount || 0)
   const [rating, setRating] = useState<number>(searchParams?.rating || 0)
@@ -219,9 +217,6 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           displayEmpty
           fullWidth
         >
-          {/* <MenuItem value="" disabled>
-            予算下限
-          </MenuItem> */}
           <MenuItem value={undefined}>指定なし</MenuItem>
           {priceLevels.slice(1).map((level) => (
             <MenuItem key={level.label} value={level.p_level}>
@@ -236,9 +231,6 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           displayEmpty
           fullWidth
         >
-          {/* <MenuItem value="" disabled>
-            予算上限
-          </MenuItem> */}
           <MenuItem value={undefined}>指定なし</MenuItem>
           {priceLevels.slice(1).map((level) => (
             <MenuItem key={level.label} value={level.p_level}>
