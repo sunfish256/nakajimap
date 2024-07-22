@@ -1,13 +1,13 @@
 export const searchNearbyRestaurants = (
   location: string,
   radius: number,
-  minBudget: number,
-  maxBudget: number,
   cuisine: string,
   reviewCount: number,
-  rating: number
-) => {
-  return new Promise((resolve, reject) => {
+  rating: number,
+  minBudget?: number,
+  maxBudget?: number  
+): Promise<any[]> => {
+  return new Promise<any[]>((resolve, reject) => {
     // mapを初期化(Map.tsxのmapオブジェクトとは別物)
     const map = new google.maps.Map(document.createElement("div"), {
       center: { lat: -34.397, lng: 150.644 },
@@ -36,18 +36,26 @@ export const searchNearbyRestaurants = (
         const request = {
           location: new google.maps.LatLng(lat, lng),
           radius: radius,
-          type: ["restaurant"],
+          type: "restaurant",
           keyword: cuisine,
-          minPriceLevel: minBudget,
-          maxPriceLevel: maxBudget,
+          minPriceLevel: minBudget !== undefined ? minBudget : undefined,
+          maxPriceLevel: maxBudget !== undefined ? maxBudget : undefined,
         }
 
-        const allResults = []
+        const allResults: any[] = []
 
-        const processResults = (results, status, pagination) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK) {
-            const filteredResults = results.filter((place) => {
-              return place.user_ratings_total >= reviewCount && place.rating >= rating
+        const processResults = (
+          results: google.maps.places.PlaceResult[] | null,
+          status: google.maps.places.PlacesServiceStatus,
+          pagination: google.maps.places.PlaceSearchPagination | null
+        ) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+            const filteredResults = results.filter((place: google.maps.places.PlaceResult) => {
+              // user_ratings_total と rating が undefined でないことを確認
+              if (place.user_ratings_total !== undefined && place.rating !== undefined) {
+                return place.user_ratings_total >= reviewCount && place.rating >= rating;
+              }
+              return false
             })
 
             allResults.push(...filteredResults)
