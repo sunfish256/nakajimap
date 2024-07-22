@@ -26,8 +26,8 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const defaultParams: SearchParams = {
     location: "東京駅",
     radius: 800,
-    minBudget: 1,
-    maxBudget: 4,
+    minBudget: undefined,
+    maxBudget: undefined,
     cuisine: "",
     reviewCount: 0,
     rating: 0,
@@ -35,7 +35,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const searchParams = loc.state as SearchParams
   const { currentUser } = useAuth()
   const [location, setLocation] = useState<string>(searchParams?.location || "")
-  const [radius, setRadius] = useState<number | undefined>(searchParams?.radius)
+  const [radius, setRadius] = useState<number>(searchParams?.radius)
   const [minBudget, setMinBudget] = useState<number | undefined>(searchParams?.minBudget)
   const [maxBudget, setMaxBudget] = useState<number | undefined>(searchParams?.maxBudget)
   const [cuisine, setCuisine] = useState<string>(searchParams?.cuisine || "")
@@ -65,17 +65,17 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
 
   const handleSearch = async (params: SearchParams) => {
     if (!params.location) {
-      console.log("エリア・駅が空白のため、検索は実行されません。")
+      alert("エリア・駅が空白のため、検索は実行されません。")
       return
     }
     if (!params.radius || params.radius <= 0) {
-      console.log("範囲が無効のため、検索は実行されません。")
+      alert("範囲が無効のため、検索は実行されません。")
       return
     }
     if (params.minBudget !== undefined && params.maxBudget !== undefined && params.minBudget > params.maxBudget) {
       alert("最低価格レベルは最高価格レベル以下でなければなりません。")
       return
-    }    
+    }
     const searchParams = {
       location: params.location,
       radius: params.radius,
@@ -103,17 +103,17 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
       console.log("location", location)
       console.log("radius", radius)
       console.log("minBudget", minBudget)
-      console.log("maxBudget", maxBudget)      
+      console.log("maxBudget", maxBudget)
       const performSearch = async () => {
         try {
           const results = await searchNearbyRestaurants(
             location,
             radius,
-            minBudget,
-            maxBudget,
             cuisine,
             reviewCount,
-            rating
+            rating,
+            minBudget,
+            maxBudget            
           )
           console.log(results) // 検索結果を表示するためのログ
           setResults(results) // 親コンポーネントの状態を更新
@@ -163,7 +163,11 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
       })
       setSavedFilters(filtersList)
     } catch (error) {
-      console.error("Error fetching filters: ", error.message)
+      if (error instanceof Error) {
+        console.error("Error fetching filters: ", error.message)
+      } else {
+        console.error("An unknown error occurred while fetching filters")        
+      }
     }
   }
 
@@ -233,7 +237,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           fullWidth
           margin="normal"
           placeholder="例: 和食"
-          InputLabelProps={{ shrink: true }}          
+          InputLabelProps={{ shrink: true }}
           style={{ backgroundColor: "#fcfcfc" }}
         />
         <Typography sx={{ whiteSpace: "nowrap" }}>価格レベル</Typography>
@@ -285,7 +289,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           fullWidth
           margin="normal"
           inputProps={{ step: 0.5, min: 0, max: 5.0 }}
-          InputLabelProps={{ shrink: true }}          
+          InputLabelProps={{ shrink: true }}
           style={{ backgroundColor: "#fcfcfc" }}
         />
       </Box>
