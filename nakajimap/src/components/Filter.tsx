@@ -46,7 +46,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const [searchTriggered, setSearchTriggered] = useState(false)
 
   const priceLevels = [
-    { label: "指定なし", p_level: 0 },
+    { label: "指定なし", p_level: undefined },
     { label: "￥", p_level: 1 },
     { label: "￥￥", p_level: 2 },
     { label: "￥￥￥", p_level: 3 },
