@@ -1,7 +1,7 @@
 import React from "react"
 import Navbar from "./Navbar"
 
-const Layout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+const FavoriteConditionLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   return (
     <div>
       <Navbar />
@@ -10,4 +10,4 @@ const Layout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   )
 }
 
-export default Layout
+export default FavoriteConditionLayout

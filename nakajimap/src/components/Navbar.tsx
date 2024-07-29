@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import { AppBar, Toolbar, Typography, Button } from "@mui/material"
 import { useNavigate } from "react-router-dom"
 import { auth } from "../firebase"
+import logo from "../assets/nakajimap_logo.png"
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate()
@@ -21,9 +22,10 @@ const Navbar: React.FC = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6" style={{ flexGrow: 1 }}>
+        <img src={logo} alt="ロゴ" style={{ height: 40, marginRight: 'auto', cursor: 'pointer' }} onClick={() => navigate("/home")} />
+        {/* <Typography variant="h6" style={{ flexGrow: 1 }}>
           ロゴ
-        </Typography>
+        </Typography> */}
         <Button color="inherit" onClick={() => navigate("/home")}>
           ホーム
         </Button>
