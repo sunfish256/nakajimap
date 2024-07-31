@@ -53,6 +53,13 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
     { label: "￥￥￥￥", p_level: 4 },
   ]
 
+  const formatBudget = (budget: number | undefined): string => {  //お気に入り条件選択UIで使用
+    if (budget === undefined) {
+      return "指定なし"
+    }
+    return "￥".repeat(budget)
+  }
+
   const setParams = (params: SearchParams) => {
     setLocation(params.location)
     setRadius(params.radius)
@@ -141,16 +148,21 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
         return
       }
       try {
-        await addDoc(collection(db, "filters"), {
+        const filterData: any = {
           userId: currentUser.uid,
           location,
           radius,
-          minBudget,
-          maxBudget,
           cuisine,
           reviewCount,
           rating,
-        })
+        }  
+        if (minBudget !== undefined) {
+          filterData.minBudget = minBudget
+        }
+        if (maxBudget !== undefined) {
+          filterData.maxBudget = maxBudget
+        }
+        await addDoc(collection(db, "filters"), filterData)
         console.log("フィルタリング条件が保存されました！")
         fetchSavedFilters()
       } catch (error) {
@@ -320,7 +332,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           </MenuItem>
           {savedFilters.map((filter) => (
             <MenuItem key={filter.id} value={filter.id}>
-              {`${filter.location} | ${filter.radius}m以内 | ${filter.cuisine} | ¥${filter.minBudget} - ¥${filter.maxBudget} | 口コミ${filter.reviewCount}件以上 | ☆${filter.rating}以上`}
+              {`${filter.location} | ${filter.radius}m以内 | ${filter.cuisine} | ${formatBudget(filter.minBudget)} - ${formatBudget(filter.maxBudget)} | 口コミ${filter.reviewCount}件以上 | ☆${filter.rating}以上`}
             </MenuItem>
           ))}
         </Select>
