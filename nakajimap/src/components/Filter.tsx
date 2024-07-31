@@ -113,7 +113,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
             reviewCount,
             rating,
             minBudget,
-            maxBudget            
+            maxBudget
           )
           console.log(results) // 検索結果を表示するためのログ
           setResults(results) // 親コンポーネントの状態を更新
@@ -128,6 +128,18 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
 
   const handleSave = async () => {
     if (currentUser) {
+      if (!location) {
+        alert("エリア・駅が空白です。")
+        return
+      }
+      if (!radius || radius <= 0) {
+        alert("範囲が無効です。")
+        return
+      }
+      if (minBudget !== undefined && maxBudget !== undefined && minBudget > maxBudget) {
+        alert("最低価格レベルは最高価格レベル以下でなければなりません。")
+        return
+      }
       try {
         await addDoc(collection(db, "filters"), {
           userId: currentUser.uid,
@@ -166,7 +178,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
       if (error instanceof Error) {
         console.error("Error fetching filters: ", error.message)
       } else {
-        console.error("An unknown error occurred while fetching filters")        
+        console.error("An unknown error occurred while fetching filters")
       }
     }
   }
@@ -185,19 +197,25 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const handleFilterSelect = (event: SelectChangeEvent<string>) => {
     const filterId = event.target.value as string
     const params = savedFilters.find((filter) => filter.id === filterId)
+
     if (params) {
       setParams(params)
     }
     setSelectedFilter(filterId)
   }
 
-  const handleMinBudgetChange = (event: SelectChangeEvent<number | undefined>) => {
-    const priceLevel = event.target.value as number | undefined
+  const handleFilterClick = () => {
+    // 一旦選択されたフィルターを空にすることで強制的にonChangeイベントを発火させる
+    setSelectedFilter("")
+  }
+
+  const handleMinBudgetChange = (event: SelectChangeEvent<number | string>) => {
+    const priceLevel = event.target.value === "" ? undefined : (event.target.value as number)
     setMinBudget(priceLevel)
   }
 
-  const handleMaxBudgetChange = (event: SelectChangeEvent<number | undefined>) => {
-    const priceLevel = event.target.value as number | undefined
+  const handleMaxBudgetChange = (event: SelectChangeEvent<number | string>) => {
+    const priceLevel = event.target.value === "" ? undefined : (event.target.value as number)
     setMaxBudget(priceLevel)
   }
 
@@ -247,7 +265,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           displayEmpty
           fullWidth
         >
-          <MenuItem value={undefined}>指定なし</MenuItem>
+          <MenuItem value="">指定なし</MenuItem>
           {priceLevels.slice(1).map((level) => (
             <MenuItem key={level.label} value={level.p_level}>
               {level.label}
@@ -261,7 +279,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           displayEmpty
           fullWidth
         >
-          <MenuItem value={undefined}>指定なし</MenuItem>
+          <MenuItem value="">指定なし</MenuItem>
           {priceLevels.slice(1).map((level) => (
             <MenuItem key={level.label} value={level.p_level}>
               {level.label}
@@ -294,10 +312,10 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
         />
       </Box>
       <Box mt={3} sx={{ display: "flex", justifyContent: "flex-end" }}>
-        <Typography variant="h6">お気に入りフィルタを選択:</Typography>
-        <Select value={selectedFilter} onChange={handleFilterSelect} displayEmpty fullWidth>
+        <Typography variant="h6">お気に入り条件を選択:</Typography>
+        <Select value={selectedFilter} onChange={handleFilterSelect} onClick={handleFilterClick} displayEmpty fullWidth>
           <MenuItem value="" disabled>
-            フィルタを選択
+            お気に入り条件を選択
           </MenuItem>
           {savedFilters.map((filter) => (
             <MenuItem key={filter.id} value={filter.id}>
