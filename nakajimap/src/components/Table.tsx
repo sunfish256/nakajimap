@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import { collection, doc, addDoc, getDoc, getDocs, deleteDoc, query, where } from "firebase/firestore"
 import { styled } from "@mui/material/styles"
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import BookmarkIcon from "@mui/icons-material/Bookmark"
@@ -11,14 +12,12 @@ import TableContainer from "@mui/material/TableContainer"
 import TableHead from "@mui/material/TableHead"
 import TableRow from "@mui/material/TableRow"
 import TableSortLabel from "@mui/material/TableSortLabel"
+import { db } from "../firebase"
+import { useAuth } from "../AuthContext"
 
 interface TableProps {
   results: any[]
   onShopClick: (placeId: string) => void
-}
-
-function createData(star: number, n_review: number, shop: string, bookmark: boolean, placeId: string) {
-  return { star, n_review, shop, bookmark, placeId }
 }
 
 const ScrollableTableCell = styled(TableCell)({
@@ -28,16 +27,49 @@ const ScrollableTableCell = styled(TableCell)({
 })
 
 const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
-  const [rows, setRows] = useState(results)
+  const { currentUser } = useAuth()
+
+  const [rows, setRows] = useState<any[]>([])
   const [order, setOrder] = useState<"desc" | null>(null)
   const [orderBy, setOrderBy] = useState<string | null>(null)
 
+  async function checkBookmark(place_id: string, userId: string) {
+    const q = query(collection(db, "favorite"), where("place_id", "==", place_id), where("userId", "==", userId))
+    const querySnapshot = await getDocs(q)
+    if (querySnapshot.empty) {
+      return false
+    }
+
+    const doc = querySnapshot.docs[0]
+    console.log(`Document found: ${doc.id}`, doc.data())
+
+    // Bookmarkフィールドの存在と値を確認
+    return doc.data().bookmark === true
+  }
+
   useEffect(() => {
-    const newRows = results.map((result) =>
-      createData(result.rating, result.user_ratings_total, result.name, false, result.place_id)
-    )
-    setRows(newRows)
-  }, [results])
+    async function fetchData() {
+      if (!currentUser) return
+
+      const newRows = await Promise.all(
+        results.map(async (result) => {
+          const bookmark = await checkBookmark(result.place_id, currentUser.uid)
+          return {
+            place_id: result.place_id,
+            geometry: result.geometry,
+            shop: result.name,
+            vicinity: result.vicinity,
+            star: result.rating,
+            n_review: result.user_ratings_total,
+            business_status: result.business_status,
+            bookmark: bookmark,
+          }
+        })
+      )
+      setRows(newRows)
+    }
+    fetchData()
+  }, [results, currentUser])
 
   const handleSortRequest = (property: string) => {
     if (orderBy === property && order === "desc") {
@@ -49,8 +81,55 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
     }
   }
 
-  const handleBookmarkChange = (shop: string) => {
-    setRows((prevRows) => prevRows.map((row) => (row.shop === shop ? { ...row, bookmark: !row.bookmark } : row)))
+  const handleBookmarkChange = async (row: any) => {
+    const updatedRow = {
+      ...row,
+      bookmark: !row.bookmark,
+    }
+
+    setRows((prevRows) => prevRows.map((r) => (r.shop === row.shop ? updatedRow : r)))
+
+    if (currentUser) {
+      const { place_id, geometry, shop, vicinity, star, n_review, business_status, bookmark } = updatedRow
+      const resultData = {
+        userId: currentUser.uid,
+        place_id,
+        geometry: {
+          location: {
+            lat: typeof geometry?.location?.lat === "function" ? geometry.location.lat() : geometry?.location?.lat,
+            lng: typeof geometry?.location?.lng === "function" ? geometry.location.lng() : geometry?.location?.lng,
+          },
+        },
+        shop,
+        vicinity,
+        star,
+        n_review,
+        business_status,
+        bookmark,
+      }
+
+      try {
+        const q = query(
+          collection(db, "favorite"),
+          where("userId", "==", currentUser.uid),
+          where("place_id", "==", place_id)
+        )
+        const querySnapshot = await getDocs(q)
+
+        if (!querySnapshot.empty) {
+          // 既にお気に入りに登録されている場合
+          const docId = querySnapshot.docs[0].id
+          await deleteDoc(doc(db, "favorite", docId))
+          setRows((prevRows) => prevRows.map((r) => (r.shop === row.shop ? { ...r, bookmark: false } : r)))
+        } else {
+          // お気に入りに登録されていない場合
+          await addDoc(collection(db, "favorite"), resultData)
+          setRows((prevRows) => prevRows.map((r) => (r.shop === row.shop ? { ...r, bookmark: true } : r)))
+        }
+      } catch (error) {
+        console.error("Error writing document: ", error)
+      }
+    }
   }
 
   const sortedRows = order
@@ -106,16 +185,14 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
               </TableCell>
               <TableCell align="left">{row.n_review}</TableCell>
               <ScrollableTableCell align="left" onClick={() => onShopClick(row.placeId)}>
-                <span style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}>
-                  {row.shop}
-                </span>
+                <span style={{ color: "blue", textDecoration: "underline", cursor: "pointer" }}>{row.shop}</span>
               </ScrollableTableCell>
               <TableCell align="left">
                 <Checkbox
                   icon={<BookmarkBorderIcon />}
                   checkedIcon={<BookmarkIcon />}
                   checked={row.bookmark}
-                  onChange={() => handleBookmarkChange(row.shop)}
+                  onChange={() => handleBookmarkChange(row)}
                 />
               </TableCell>
             </TableRow>

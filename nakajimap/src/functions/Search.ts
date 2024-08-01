@@ -5,7 +5,7 @@ export const searchNearbyRestaurants = (
   reviewCount: number,
   rating: number,
   minBudget?: number,
-  maxBudget?: number  
+  maxBudget?: number
 ): Promise<any[]> => {
   return new Promise<any[]>((resolve, reject) => {
     // mapを初期化(Map.tsxのmapオブジェクトとは別物)
@@ -15,9 +15,8 @@ export const searchNearbyRestaurants = (
     })
 
     // Geocode APIを使用して住所を座標に変換
-    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${
-      import.meta.env.VITE_GOOGLEMAP_API_KEY
-    }`
+    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${import.meta.env.VITE_GOOGLEMAP_API_KEY
+      }`
 
     fetch(geocodeUrl)
       .then((response) => response.json())
