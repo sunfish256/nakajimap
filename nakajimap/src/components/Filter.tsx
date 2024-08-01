@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { Box, TextField, Typography, Button, MenuItem, Select } from "@mui/material"
 import { SelectChangeEvent } from "@mui/material/Select"
-import { addDoc, collection, getDocs } from "firebase/firestore"
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore"
 import { db } from "../firebase"
 import { useLocation } from "react-router-dom"
 import { searchNearbyRestaurants } from "../functions/Search"
@@ -168,7 +168,8 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const fetchSavedFilters = async () => {
     if (!currentUser) return
     try {
-      const querySnapshot = await getDocs(collection(db, "filters"))
+      const q = query(collection(db, "filters"), where("userId", "==", currentUser.uid))
+      const querySnapshot = await getDocs(q)
       const filtersList: any[] = []
       querySnapshot.forEach((doc) => {
         filtersList.push({ id: doc.id, ...doc.data() })
