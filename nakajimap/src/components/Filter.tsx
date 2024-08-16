@@ -47,17 +47,17 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
 
   const priceLevels = [
     { label: "指定なし", p_level: undefined },
-    { label: "￥", p_level: 1 },
-    { label: "￥￥", p_level: 2 },
-    { label: "￥￥￥", p_level: 3 },
-    { label: "￥￥￥￥", p_level: 4 },
+    { label: "¥", p_level: 1 },
+    { label: "¥¥", p_level: 2 },
+    { label: "¥¥¥", p_level: 3 },
+    { label: "¥¥¥¥", p_level: 4 },
   ]
 
   const formatBudget = (budget: number | undefined): string => {  //お気に入り条件選択UIで使用
     if (budget === undefined) {
       return "指定なし"
     }
-    return "￥".repeat(budget)
+    return "¥".repeat(budget)
   }
 
   const setParams = (params: SearchParams) => {
@@ -162,8 +162,29 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
         if (maxBudget !== undefined) {
           filterData.maxBudget = maxBudget
         }
+
+        // 同じ条件が存在するかをチェックする
+        const q = query(
+          collection(db, "filters"),
+          where("userId", "==", currentUser.uid),
+          where("location", "==", location),
+          where("radius", "==", radius),
+          where("cuisine", "==", cuisine),
+          where("reviewCount", "==", reviewCount),
+          where("rating", "==", rating),
+          ...(minBudget !== undefined ? [where("minBudget", "==", minBudget)] : []),
+          ...(maxBudget !== undefined ? [where("maxBudget", "==", maxBudget)] : [])
+        );
+
+        const querySnapshot = await getDocs(q)
+
+        if (!querySnapshot.empty) {
+          alert("同じ条件が既に保存されています。")
+          return
+        }
+
         await addDoc(collection(db, "filters"), filterData)
-        console.log("フィルタリング条件が保存されました！")
+        alert("お気に入り条件が保存されました！")
         fetchSavedFilters()
       } catch (error) {
         if (error instanceof Error) {
