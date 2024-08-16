@@ -340,7 +340,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
         <TextField
           label="☆評価の数はいくつ以上か"
           type="number"
-          value={rating !== undefined ? rating : ""}
+          value={rating !== undefined ? rating.toString() : ""}
           onChange={(e) => setRating(Number(e.target.value))}
           fullWidth
           margin="normal"
