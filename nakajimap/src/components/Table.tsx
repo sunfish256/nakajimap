@@ -180,7 +180,7 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
         </TableHead>
         <TableBody>
           {sortedRows.map((row) => (
-            <TableRow key={row.shop} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+            <TableRow key={row.place_id} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
               <TableCell component="th" scope="row">
                 {row.star}
               </TableCell>
