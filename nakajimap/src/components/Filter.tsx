@@ -35,7 +35,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const searchParams = loc.state as SearchParams
   const { currentUser } = useAuth()
   const [location, setLocation] = useState<string>(searchParams?.location || "")
-  const [radius, setRadius] = useState<number>(searchParams?.radius)
+  const [radius, setRadius] = useState<number | undefined>(searchParams?.radius)
   const [minBudget, setMinBudget] = useState<number | undefined>(searchParams?.minBudget)
   const [maxBudget, setMaxBudget] = useState<number | undefined>(searchParams?.maxBudget)
   const [cuisine, setCuisine] = useState<string>(searchParams?.cuisine || "")
@@ -272,7 +272,10 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           label="範囲"
           type="number"
           value={radius !== undefined ? radius : ""}
-          onChange={(e) => setRadius(Number(e.target.value))}
+          onChange={(e) => {
+            const value = e.target.value
+            setRadius(value === "" ? undefined : Number(value))
+          }}
           fullWidth
           margin="normal"
           placeholder="800"
