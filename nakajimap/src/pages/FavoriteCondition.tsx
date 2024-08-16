@@ -10,6 +10,7 @@ const FavoriteCondition: React.FC = () => {
   const { currentUser } = useAuth()
   const [savedFilters, setSavedFilters] = useState<any[]>([])
   const priceLevels = [
+    { label: "指定なし", p_level: undefined },
     { label: "￥", p_level: 1 },
     { label: "￥￥", p_level: 2 },
     { label: "￥￥￥", p_level: 3 },
