@@ -142,7 +142,8 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
         return 0
       })
     : rows
-
+    console.log("sortedRows", sortedRows)
+  
   return (
     <TableContainer
       component={Paper}
@@ -184,7 +185,10 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
                 {row.star}
               </TableCell>
               <TableCell align="left">{row.n_review}</TableCell>
-              <ScrollableTableCell align="left" onClick={() => onShopClick(row.placeId)}>
+              <ScrollableTableCell align="left" onClick={() => {
+                console.log("Clicked shop:", row.shop, "with placeId:", row.place_id)
+                onShopClick(row.place_id)
+                }}>
                 <span style={{ color: "blue", textDecoration: "underline", cursor: "pointer" }}>{row.shop}</span>
               </ScrollableTableCell>
               <TableCell align="left">
