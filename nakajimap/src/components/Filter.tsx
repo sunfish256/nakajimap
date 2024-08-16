@@ -185,6 +185,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
 
         await addDoc(collection(db, "filters"), filterData)
         alert("お気に入り条件が保存されました！")
+
         fetchSavedFilters()
       } catch (error) {
         if (error instanceof Error) {
