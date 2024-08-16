@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { Box, TextField, Typography, Button, MenuItem, Select } from "@mui/material"
 import { SelectChangeEvent } from "@mui/material/Select"
-import { addDoc, collection, getDocs } from "firebase/firestore"
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore"
 import { db } from "../firebase"
 import { useLocation } from "react-router-dom"
 import { searchNearbyRestaurants } from "../functions/Search"
@@ -35,7 +35,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const searchParams = loc.state as SearchParams
   const { currentUser } = useAuth()
   const [location, setLocation] = useState<string>(searchParams?.location || "")
-  const [radius, setRadius] = useState<number>(searchParams?.radius)
+  const [radius, setRadius] = useState<number | undefined>(searchParams?.radius)
   const [minBudget, setMinBudget] = useState<number | undefined>(searchParams?.minBudget)
   const [maxBudget, setMaxBudget] = useState<number | undefined>(searchParams?.maxBudget)
   const [cuisine, setCuisine] = useState<string>(searchParams?.cuisine || "")
@@ -47,17 +47,17 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
 
   const priceLevels = [
     { label: "指定なし", p_level: undefined },
-    { label: "￥", p_level: 1 },
-    { label: "￥￥", p_level: 2 },
-    { label: "￥￥￥", p_level: 3 },
-    { label: "￥￥￥￥", p_level: 4 },
+    { label: "¥", p_level: 1 },
+    { label: "¥¥", p_level: 2 },
+    { label: "¥¥¥", p_level: 3 },
+    { label: "¥¥¥¥", p_level: 4 },
   ]
 
   const formatBudget = (budget: number | undefined): string => {  //お気に入り条件選択UIで使用
     if (budget === undefined) {
       return "指定なし"
     }
-    return "￥".repeat(budget)
+    return "¥".repeat(budget)
   }
 
   const setParams = (params: SearchParams) => {
@@ -162,8 +162,30 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
         if (maxBudget !== undefined) {
           filterData.maxBudget = maxBudget
         }
+
+        // 同じ条件が存在するかをチェックする
+        const q = query(
+          collection(db, "filters"),
+          where("userId", "==", currentUser.uid),
+          where("location", "==", location),
+          where("radius", "==", radius),
+          where("cuisine", "==", cuisine),
+          where("reviewCount", "==", reviewCount),
+          where("rating", "==", rating),
+          ...(minBudget !== undefined ? [where("minBudget", "==", minBudget)] : []),
+          ...(maxBudget !== undefined ? [where("maxBudget", "==", maxBudget)] : [])
+        );
+
+        const querySnapshot = await getDocs(q)
+
+        if (!querySnapshot.empty) {
+          alert("同じ条件が既に保存されています。")
+          return
+        }
+
         await addDoc(collection(db, "filters"), filterData)
-        console.log("フィルタリング条件が保存されました！")
+        alert("お気に入り条件が保存されました！")
+
         fetchSavedFilters()
       } catch (error) {
         if (error instanceof Error) {
@@ -180,7 +202,8 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const fetchSavedFilters = async () => {
     if (!currentUser) return
     try {
-      const querySnapshot = await getDocs(collection(db, "filters"))
+      const q = query(collection(db, "filters"), where("userId", "==", currentUser.uid))
+      const querySnapshot = await getDocs(q)
       const filtersList: any[] = []
       querySnapshot.forEach((doc) => {
         filtersList.push({ id: doc.id, ...doc.data() })
@@ -249,7 +272,10 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           label="範囲"
           type="number"
           value={radius !== undefined ? radius : ""}
-          onChange={(e) => setRadius(Number(e.target.value))}
+          onChange={(e) => {
+            const value = e.target.value
+            setRadius(value === "" ? undefined : Number(value))
+          }}
           fullWidth
           margin="normal"
           placeholder="800"
@@ -314,7 +340,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
         <TextField
           label="☆評価の数はいくつ以上か"
           type="number"
-          value={rating !== undefined ? rating : ""}
+          value={rating !== undefined ? rating.toString() : ""}
           onChange={(e) => setRating(Number(e.target.value))}
           fullWidth
           margin="normal"

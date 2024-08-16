@@ -8,16 +8,16 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate()
   const [currentUser, setCurrentUser] = useState<null | object>(null)
 
-    useEffect(() => {
-      const unsubscribe = auth.onAuthStateChanged((user) => {
-        if (user) {
-          setCurrentUser(user)
-        } else {
-          navigate("/auth")
-        }
-      })
-      return () => unsubscribe()
-    }, [navigate])
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setCurrentUser(user)
+      } else {
+        navigate("/auth")
+      }
+    })
+    return () => unsubscribe()
+  }, [navigate])
 
   return (
     <AppBar position="static">
@@ -32,7 +32,11 @@ const Navbar: React.FC = () => {
         <Button color="inherit" onClick={() => navigate("/favorite_condition")}>
           お気に入り条件
         </Button>
-        <Button color="inherit"
+        <Button color="inherit" onClick={() => navigate("/favorite")}>
+          お気に入り
+        </Button>
+        <Button
+          color="inherit"
           onClick={async () => {
             try {
               await auth.signOut()

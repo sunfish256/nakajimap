@@ -11,10 +11,11 @@ const FavoriteCondition: React.FC = () => {
   const [savedFilters, setSavedFilters] = useState<any[]>([])
   const priceLevels = [
     { label: "指定なし", p_level: undefined },
-    { label: "￥", p_level: 1 },
-    { label: "￥￥", p_level: 2 },
-    { label: "￥￥￥", p_level: 3 },
-    { label: "￥￥￥￥", p_level: 4 },
+
+    { label: "¥", p_level: 1 },
+    { label: "¥¥", p_level: 2 },
+    { label: "¥¥¥", p_level: 3 },
+    { label: "¥¥¥¥", p_level: 4 },
   ]
   const getPriceLabel = (level) => {
     const priceLevel = priceLevels.find((pl) => pl.p_level === level)
