@@ -50,9 +50,9 @@ const App: React.FC = () => {
           <Route
             path="/"
             element={
-              <AuthLayout>
-                <Auth />
-              </AuthLayout>
+              <HomeLayout>
+                <Home />
+              </HomeLayout>
             }
           />
         </Routes>

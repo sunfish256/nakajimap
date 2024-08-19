@@ -142,7 +142,6 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
         return 0
       })
     : rows
-    console.log("sortedRows", sortedRows)
   
   return (
     <TableContainer

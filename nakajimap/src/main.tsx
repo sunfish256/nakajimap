@@ -19,7 +19,7 @@ function loadGoogleMapsApi(): void {
   const script = document.createElement("script")
   script.src = `https://maps.googleapis.com/maps/api/js?key=${
     import.meta.env.VITE_GOOGLEMAP_API_KEY
-  }&callback=initMap&libraries=places`
+  }&libraries=places`
   script.async = true
   script.defer = true
   document.head.appendChild(script)
