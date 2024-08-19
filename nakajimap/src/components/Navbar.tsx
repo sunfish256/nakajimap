@@ -41,10 +41,10 @@ const Navbar: React.FC = () => {
             nakajimap
           </Typography>
         </Box>
-        <Button color="inherit" onClick={() => navigate("/favorite")}>
+        <Button color="inherit" onClick={() => navigate("/favorite")} sx={{ fontSize: '0.9rem' }}>
           お気に入りリスト
         </Button>
-        <Button color="inherit" onClick={() => navigate("/favorite_condition")}>
+        <Button color="inherit" onClick={() => navigate("/favorite_condition")} sx={{ fontSize: '0.9rem' }}>
           お気に入りフィルタ
         </Button>
         <Button
@@ -61,6 +61,7 @@ const Navbar: React.FC = () => {
               }
             }
           }}
+          sx={{ fontSize: '0.9rem' }}
         >
           ログアウト
         </Button>
