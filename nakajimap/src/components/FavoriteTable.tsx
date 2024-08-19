@@ -14,7 +14,6 @@ import TableContainer from "@mui/material/TableContainer"
 import TableHead from "@mui/material/TableHead"
 import TableRow from "@mui/material/TableRow"
 import TableSortLabel from "@mui/material/TableSortLabel"
-import { Place } from "@mui/icons-material"
 
 interface TableProps {
   favorites: any[]
@@ -23,13 +22,9 @@ interface TableProps {
 
 const FavoriteTable: React.FC<TableProps> = ({ favorites, onShopClick }) => {
   const { currentUser } = useAuth()
-  const [order, setOrder] = useState<"desc" | null>(null)
-  const [orderBy, setOrderBy] = useState<string | null>(null)
+  const [order, setOrder] = useState<"desc" | "asc">("desc")
+  const [orderBy, setOrderBy] = useState<string>("n_review")
   const [rows, setRows] = useState<any[]>([])
-
-  function createData(star: number, n_review: number, shop: string, bookmark: boolean, placeId: string) {
-    return { star, n_review, shop, bookmark, placeId }
-  }
 
   const ScrollableTableCell = styled(TableCell)({
     maxWidth: "240px",
@@ -38,10 +33,11 @@ const FavoriteTable: React.FC<TableProps> = ({ favorites, onShopClick }) => {
   })
 
   const handleSortRequest = (property: string) => {
-    if (orderBy === property && order === "desc") {
-      setOrder(null)
-      setOrderBy(null)
+    if (orderBy === property) {
+      // 既に選択されているプロパティの場合、昇順・降順を切り替える
+      setOrder(order === "desc" ? "asc" : "desc")
     } else {
+      // 別のプロパティが選択された場合は降順でソートを開始
       setOrder("desc")
       setOrderBy(property)
     }
@@ -97,15 +93,19 @@ const FavoriteTable: React.FC<TableProps> = ({ favorites, onShopClick }) => {
   }
 
   const sortedRows = order
-    ? rows.slice().sort((a, b) => {
-        if (orderBy === "star") {
-          return b.star - a.star || b.n_review - a.n_review
-        } else if (orderBy === "n_review") {
-          return b.n_review - a.n_review || b.star - a.star
-        }
-        return 0
-      })
-    : rows
+  ? rows.slice().sort((a, b) => {
+      if (orderBy === "star") {
+        return order === "desc"
+          ? b.star - a.star || b.n_review - a.n_review
+          : a.star - b.star || a.n_review - b.n_review
+      } else if (orderBy === "n_review") {
+        return order === "desc"
+          ? b.n_review - a.n_review || b.star - a.star
+          : a.n_review - b.n_review || a.star - b.star
+      }
+      return 0
+    })
+  : rows
 
   useEffect(() => {
     setRows(favorites)
@@ -121,20 +121,20 @@ const FavoriteTable: React.FC<TableProps> = ({ favorites, onShopClick }) => {
           <TableRow>
             <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
               <TableSortLabel
-                active={orderBy === "star"}
-                direction={order === "desc" ? "desc" : "desc"}
-                onClick={() => handleSortRequest("star")}
-              >
-                ☆評価
-              </TableSortLabel>
-            </TableCell>
-            <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
-              <TableSortLabel
                 active={orderBy === "n_review"}
                 direction={order === "desc" ? "desc" : "desc"}
                 onClick={() => handleSortRequest("n_review")}
               >
                 口コミ数
+              </TableSortLabel>
+            </TableCell>
+            <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
+              <TableSortLabel
+                active={orderBy === "star"}
+                direction={order === "desc" ? "desc" : "desc"}
+                onClick={() => handleSortRequest("star")}
+              >
+                ☆評価
               </TableSortLabel>
             </TableCell>
             <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
@@ -148,10 +148,10 @@ const FavoriteTable: React.FC<TableProps> = ({ favorites, onShopClick }) => {
         <TableBody>
           {sortedRows.map((row) => (
             <TableRow key={row.place_id} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+              <TableCell align="left">{row.n_review}</TableCell>
               <TableCell component="th" scope="row">
                 {row.star}
               </TableCell>
-              <TableCell align="left">{row.n_review}</TableCell>
               <ScrollableTableCell align="left" onClick={() => onShopClick(row.place_id)}>
                 <span style={{ color: "blue", textDecoration: "underline", cursor: "pointer" }}>{row.shop}</span>
               </ScrollableTableCell>

@@ -30,8 +30,8 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
   const { currentUser } = useAuth()
 
   const [rows, setRows] = useState<any[]>([])
-  const [order, setOrder] = useState<"desc" | null>(null)
-  const [orderBy, setOrderBy] = useState<string | null>(null)
+  const [order, setOrder] = useState<"desc" | "asc">("desc")
+  const [orderBy, setOrderBy] = useState<string>("n_review")
 
   async function checkBookmark(place_id: string, userId: string) {
     const q = query(collection(db, "favorite"), where("place_id", "==", place_id), where("userId", "==", userId))
@@ -72,10 +72,11 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
   }, [results, currentUser])
 
   const handleSortRequest = (property: string) => {
-    if (orderBy === property && order === "desc") {
-      setOrder(null)
-      setOrderBy(null)
+    if (orderBy === property) {
+      // 既に選択されているプロパティの場合、昇順・降順を切り替える
+      setOrder(order === "desc" ? "asc" : "desc")
     } else {
+      // 別のプロパティが選択された場合は降順でソートを開始
       setOrder("desc")
       setOrderBy(property)
     }
@@ -133,15 +134,19 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
   }
 
   const sortedRows = order
-    ? rows.slice().sort((a, b) => {
-        if (orderBy === "star") {
-          return b.star - a.star || b.n_review - a.n_review
-        } else if (orderBy === "n_review") {
-          return b.n_review - a.n_review || b.star - a.star
-        }
-        return 0
-      })
-    : rows
+  ? rows.slice().sort((a, b) => {
+      if (orderBy === "star") {
+        return order === "desc"
+          ? b.star - a.star || b.n_review - a.n_review
+          : a.star - b.star || a.n_review - b.n_review
+      } else if (orderBy === "n_review") {
+        return order === "desc"
+          ? b.n_review - a.n_review || b.star - a.star
+          : a.n_review - b.n_review || a.star - b.star
+      }
+      return 0
+    })
+  : rows
   
   return (
     <TableContainer
@@ -153,20 +158,20 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
           <TableRow>
             <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
               <TableSortLabel
-                active={orderBy === "star"}
-                direction={order === "desc" ? "desc" : "desc"}
-                onClick={() => handleSortRequest("star")}
+                active={orderBy === "n_review"}
+                direction={order === "asc" ? "asc" : "desc"}
+                onClick={() => handleSortRequest("n_review")}
               >
-                ☆評価
+                口コミ数
               </TableSortLabel>
             </TableCell>
             <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
               <TableSortLabel
-                active={orderBy === "n_review"}
-                direction={order === "desc" ? "desc" : "desc"}
-                onClick={() => handleSortRequest("n_review")}
+                active={orderBy === "star"}
+                direction={order === "asc" ? "asc" : "desc"}
+                onClick={() => handleSortRequest("star")}
               >
-                口コミ数
+                ☆評価
               </TableSortLabel>
             </TableCell>
             <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
@@ -180,10 +185,10 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
         <TableBody>
           {sortedRows.map((row) => (
             <TableRow key={row.place_id} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+              <TableCell align="left">{row.n_review}</TableCell>
               <TableCell component="th" scope="row">
                 {row.star}
               </TableCell>
-              <TableCell align="left">{row.n_review}</TableCell>
               <ScrollableTableCell align="left" onClick={() => {
                 console.log("Clicked shop:", row.shop, "with placeId:", row.place_id)
                 onShopClick(row.place_id)
