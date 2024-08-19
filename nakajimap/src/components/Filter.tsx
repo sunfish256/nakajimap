@@ -350,10 +350,9 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
         />
       </Box>
       <Box mt={3} sx={{ display: "flex", justifyContent: "flex-end" }}>
-        <Typography variant="h6">お気に入り条件を選択:</Typography>
         <Select value={selectedFilter} onChange={handleFilterSelect} onClick={handleFilterClick} displayEmpty fullWidth>
           <MenuItem value="" disabled>
-            お気に入り条件を選択
+            お気に入りフィルタを選択
           </MenuItem>
           {savedFilters.map((filter) => (
             <MenuItem key={filter.id} value={filter.id}>

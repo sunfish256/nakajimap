@@ -24,7 +24,7 @@ const FavoriteCondition: React.FC = () => {
 
   const fetchSavedFilters = async () => {
     if (!currentUser) return
-    console.log("fetchSavedFilters function called") // デバッグ用メッセージ
+    console.log("fetchSavedFilters function called")
     try {
       const q = query(collection(db, "filters"), where("userId", "==", currentUser.uid))
       const querySnapshot = await getDocs(q)
@@ -64,7 +64,7 @@ const FavoriteCondition: React.FC = () => {
           key={filter.id}
           sx={{ border: "1px solid #ccc", borderRadius: "5px", padding: "10px", marginBottom: "10px" }}
         >
-          <Typography variant="h6">お気に入り条件{idx + 1}</Typography>
+          <Typography variant="h6">お気に入りフィルタ {idx + 1}</Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: 3, marginTop: "10px" }}>
             <TextField
               label="エリア・駅"
