@@ -381,7 +381,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           検索
         </Button>
         <Button variant="outlined" color="secondary" onClick={handleSave}>
-          保存
+          条件保存
         </Button>
       </Box>
     </Box>

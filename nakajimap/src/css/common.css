@@ -14,24 +14,9 @@
 /* ページ全体の設定 */
 html,
 body {
-  background-color: #fffbf6;
+  background-color: #ffffff;
   zoom: 0.95; /* ホーム画面がデカすぎたため縮小 */
   margin: 0px;
-}
-
-/* ページ上部の固定ヘッダー */
-.sticky-header {
-  position: fixed;
-  top: 0;
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  height: 100px;
-  width: 100%;
-  background-color: #ddd;
-  border-bottom: 4px solid #666;
 }
 
 /* 画面全体のスタイル */
