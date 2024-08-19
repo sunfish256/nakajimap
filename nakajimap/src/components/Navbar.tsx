@@ -41,11 +41,11 @@ const Navbar: React.FC = () => {
             nakajimap
           </Typography>
         </Box>
-        <Button color="inherit" onClick={() => navigate("/favorite_condition")}>
-          お気に入りフィルタ
-        </Button>
         <Button color="inherit" onClick={() => navigate("/favorite")}>
           お気に入りリスト
+        </Button>
+        <Button color="inherit" onClick={() => navigate("/favorite_condition")}>
+          お気に入りフィルタ
         </Button>
         <Button
           color="inherit"
