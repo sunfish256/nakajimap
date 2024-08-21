@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
-import { db } from "../firebase"
-import { Box, TextField, Typography, Button } from "@mui/material"
+import { db, auth } from "../firebase"
+import { Box, TextField, Typography, Button, Select, MenuItem } from "@mui/material"
 import { query, where, collection, getDocs, doc, deleteDoc } from "firebase/firestore"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../AuthContext"
@@ -60,7 +60,7 @@ const FavoriteCondition: React.FC = () => {
   return (
     <div className="container">
       {savedFilters.map((filter, idx) => (
-        <div className="content">
+        <div className="content" key={idx}>
           <div className="filter-favcondition">
             <div className="favcondition-title">
               <h2>お気に入り条件 {idx + 1}</h2>

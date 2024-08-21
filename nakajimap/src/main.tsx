@@ -15,15 +15,29 @@ if (container) {
 }
 
 // Google Maps APIを非同期で読み込むスクリプトを動的に追加
-function loadGoogleMapsApi(): void {
-  const script = document.createElement("script")
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${
-    import.meta.env.VITE_GOOGLEMAP_API_KEY
-  }&libraries=places`
-  script.async = true
-  script.defer = true
-  document.head.appendChild(script)
+function loadGoogleMapsApi(): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    if (typeof google !== "undefined" && google.maps) {
+      // Google Maps APIが既にロードされている場合
+      resolve()
+    } else {
+      const script = document.createElement("script")
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${
+        import.meta.env.VITE_GOOGLEMAP_API_KEY
+      }&libraries=places`
+      script.async = true
+      script.defer = true
+      script.onload = () => resolve()
+      script.onerror = (error) => reject(error)
+      document.head.appendChild(script)
+    }
+  })
 }
 
-// スクリプトのロードを開始
 loadGoogleMapsApi()
+  .then(() => {
+    if (typeof window.initMap === "function") {
+      window.initMap()
+    }
+  })
+  .catch((error: Event) => console.error("Failed to load Google Maps API:", error))
