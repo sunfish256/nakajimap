@@ -20,32 +20,32 @@ const Navbar: React.FC = () => {
   }, [navigate])
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ width: "100%" }}>
       <Toolbar>
         {/* <img src={logo} alt="ロゴ" style={{ height: 40, marginRight: 'auto', cursor: 'pointer' }} onClick={() => navigate("/home")} /> */}
         <Box sx={{ flexGrow: 1 }}>
           <Typography
             variant="h6"
             component="div"
-            sx={{ 
-              color: 'white', 
-              cursor: 'pointer', 
-              fontSize: '1.5rem',
-              letterSpacing: '0.2rem',
+            sx={{
+              color: "white",
+              cursor: "pointer",
+              fontSize: "1.5rem",
+              letterSpacing: "0.2rem",
               fontWeight: 500,
-              display: 'inline-block',
-              '-webkit-font-smoothing': 'antialiased',
+              display: "inline-block",
+              WebkitFontSmoothing: "antialiased",
             }}
             onClick={() => navigate("/home")}
           >
             nakajimap
           </Typography>
         </Box>
-        <Button color="inherit" onClick={() => navigate("/favorite")} sx={{ fontSize: '0.9rem' }}>
+        <Button color="inherit" onClick={() => navigate("/favorite")} sx={{ fontSize: "0.9rem" }}>
           お気に入りリスト
         </Button>
-        <Button color="inherit" onClick={() => navigate("/favorite_condition")} sx={{ fontSize: '0.9rem' }}>
-          お気に入りフィルタ
+        <Button color="inherit" onClick={() => navigate("/favorite_condition")} sx={{ fontSize: "0.9rem" }}>
+          お気に入り条件
         </Button>
         <Button
           color="inherit"
@@ -61,7 +61,7 @@ const Navbar: React.FC = () => {
               }
             }
           }}
-          sx={{ fontSize: '0.9rem' }}
+          sx={{ fontSize: "0.9rem" }}
         >
           ログアウト
         </Button>

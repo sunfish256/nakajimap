@@ -22,7 +22,6 @@ interface TableProps {
 
 const FavoriteTable: React.FC<TableProps> = ({ favorites, onShopClick }) => {
   const { currentUser } = useAuth()
-  const [order, setOrder] = useState<"desc" | "asc">("desc")
   const [orderBy, setOrderBy] = useState<string>("n_review")
   const [rows, setRows] = useState<any[]>([])
 
@@ -33,12 +32,7 @@ const FavoriteTable: React.FC<TableProps> = ({ favorites, onShopClick }) => {
   })
 
   const handleSortRequest = (property: string) => {
-    if (orderBy === property) {
-      // 既に選択されているプロパティの場合、昇順・降順を切り替える
-      setOrder(order === "desc" ? "asc" : "desc")
-    } else {
-      // 別のプロパティが選択された場合は降順でソートを開始
-      setOrder("desc")
+    if (orderBy !== property) {
       setOrderBy(property)
     }
   }
@@ -92,20 +86,14 @@ const FavoriteTable: React.FC<TableProps> = ({ favorites, onShopClick }) => {
     }
   }
 
-  const sortedRows = order
-  ? rows.slice().sort((a, b) => {
-      if (orderBy === "star") {
-        return order === "desc"
-          ? b.star - a.star || b.n_review - a.n_review
-          : a.star - b.star || a.n_review - b.n_review
-      } else if (orderBy === "n_review") {
-        return order === "desc"
-          ? b.n_review - a.n_review || b.star - a.star
-          : a.n_review - b.n_review || a.star - b.star
-      }
-      return 0
-    })
-  : rows
+  const sortedRows = rows.slice().sort((a, b) => {
+    if (orderBy === "star") {
+      return b.star - a.star || b.n_review - a.n_review
+    } else if (orderBy === "n_review") {
+      return b.n_review - a.n_review || b.star - a.star
+    }
+    return 0
+  })
 
   useEffect(() => {
     setRows(favorites)
@@ -122,18 +110,14 @@ const FavoriteTable: React.FC<TableProps> = ({ favorites, onShopClick }) => {
             <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
               <TableSortLabel
                 active={orderBy === "n_review"}
-                direction={order === "desc" ? "desc" : "desc"}
+                direction={"desc"}
                 onClick={() => handleSortRequest("n_review")}
               >
                 口コミ数
               </TableSortLabel>
             </TableCell>
             <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
-              <TableSortLabel
-                active={orderBy === "star"}
-                direction={order === "desc" ? "desc" : "desc"}
-                onClick={() => handleSortRequest("star")}
-              >
+              <TableSortLabel active={orderBy === "star"} direction={"desc"} onClick={() => handleSortRequest("star")}>
                 ☆評価
               </TableSortLabel>
             </TableCell>
@@ -141,7 +125,7 @@ const FavoriteTable: React.FC<TableProps> = ({ favorites, onShopClick }) => {
               店名
             </TableCell>
             <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
-              行きたい
+              お気に入り
             </TableCell>
           </TableRow>
         </TableHead>
