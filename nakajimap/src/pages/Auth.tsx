@@ -40,13 +40,29 @@ export const Auth: React.FC = () => {
       if (isSignUp) {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password)
         await sendEmailVerification(userCredential.user)
+        alert("会員登録が完了しました！")
       } else {
         await signInWithEmailAndPassword(auth, email, password)
+        navigate("/home")
       }
-      navigate("/home")
-    } catch (error) {
+    } catch (error: any) {
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          alert("登録済みのアカウントです。")
+          break
+        case "auth/invalid-email":
+          alert("メールアドレスの形式が正しくありません。")
+          break
+        case "auth/weak-password":
+          alert("メールアドレスの形式が正しくありません。")
+          break
+        case "auth/invalid-credential":
+          alert("メールアドレスまたはパスワードのどちらかが正しくありません。")
+          break
+        default:
+          alert("認証に失敗しました。")
+      }
       console.error("Authentication error", error)
-      alert("Authentication failed!")
     }
   }
 
@@ -54,7 +70,7 @@ export const Auth: React.FC = () => {
     const provider = new GoogleAuthProvider()
     try {
       await signInWithPopup(auth, provider)
-      alert("Google sign in succeeded.")
+      console.log("Google sign in succeeded!")
       navigate("/home")
     } catch (error) {
       console.error("Google sign in failed!", error)
@@ -77,7 +93,7 @@ export const Auth: React.FC = () => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          {isSignUp ? "Sign up" : "Sign in"}
+          {isSignUp ? "会員登録" : "ログイン"}
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
@@ -85,7 +101,7 @@ export const Auth: React.FC = () => {
             required
             fullWidth
             id="email"
-            label="Email Address"
+            label="メールアドレス"
             name="email"
             autoComplete="email"
             autoFocus
@@ -99,7 +115,7 @@ export const Auth: React.FC = () => {
             required
             fullWidth
             name="password"
-            label="Password"
+            label="パスワード"
             type="password"
             id="password"
             autoComplete="current-password"
@@ -108,21 +124,26 @@ export const Auth: React.FC = () => {
               setPassword(e.target.value)
             }}
           />
-          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-            {isSignUp ? "Sign Up" : "Sign In"}
-          </Button>
-
-          <Button fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} onClick={handleGoogleSignIn}>
-            {isSignUp ? "Sign up with Google" : "Sign in with Google"}
+          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 1, fontSize: "1.05rem" }}>
+            {isSignUp ? "会員登録" : "ログイン"}
           </Button>
 
           <Grid container>
             <Grid item>
               <Link href="#" variant="body2" onClick={() => setIsSignUp(!isSignUp)}>
-                {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
+                {isSignUp ? "すでにアカウントをお持ちですか？ サインイン" : "アカウントをお持ちでないですか？ 会員登録"}
               </Link>
             </Grid>
           </Grid>
+
+          <Button
+            fullWidth
+            variant="contained"
+            sx={{ mt: 4, mb: 2, fontSize: "1.05rem", textTransform: "none" }}
+            onClick={handleGoogleSignIn}
+          >
+            Googleでログイン
+          </Button>
         </Box>
       </Box>
     </Container>
