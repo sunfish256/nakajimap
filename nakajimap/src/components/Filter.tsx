@@ -53,7 +53,8 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
     { label: "¥¥¥¥", p_level: 4 },
   ]
 
-  const formatBudget = (budget: number | undefined): string => {  //お気に入り条件選択UIで使用
+  const formatBudget = (budget: number | undefined): string => {
+    //お気に入り条件選択UIで使用
     if (budget === undefined) {
       return "指定なし"
     }
@@ -155,7 +156,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           cuisine,
           reviewCount,
           rating,
-        }  
+        }
         if (minBudget !== undefined) {
           filterData.minBudget = minBudget
         }
@@ -174,7 +175,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           where("rating", "==", rating),
           ...(minBudget !== undefined ? [where("minBudget", "==", minBudget)] : []),
           ...(maxBudget !== undefined ? [where("maxBudget", "==", maxBudget)] : [])
-        );
+        )
 
         const querySnapshot = await getDocs(q)
 
@@ -350,14 +351,15 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
         />
       </Box>
       <Box mt={3} sx={{ display: "flex", justifyContent: "flex-end" }}>
-        <Typography variant="h6">お気に入り条件を選択:</Typography>
         <Select value={selectedFilter} onChange={handleFilterSelect} onClick={handleFilterClick} displayEmpty fullWidth>
           <MenuItem value="" disabled>
             お気に入り条件を選択
           </MenuItem>
           {savedFilters.map((filter) => (
             <MenuItem key={filter.id} value={filter.id}>
-              {`${filter.location} | ${filter.radius}m以内 | ${filter.cuisine} | ${formatBudget(filter.minBudget)} - ${formatBudget(filter.maxBudget)} | 口コミ${filter.reviewCount}件以上 | ☆${filter.rating}以上`}
+              {`${filter.location} | ${filter.radius}m以内 | ${filter.cuisine} | ${formatBudget(
+                filter.minBudget
+              )} - ${formatBudget(filter.maxBudget)} | 口コミ${filter.reviewCount}件以上 | ☆${filter.rating}以上`}
             </MenuItem>
           ))}
         </Select>
@@ -381,7 +383,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           検索
         </Button>
         <Button variant="outlined" color="secondary" onClick={handleSave}>
-          保存
+          条件保存
         </Button>
       </Box>
     </Box>

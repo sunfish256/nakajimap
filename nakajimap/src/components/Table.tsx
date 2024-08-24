@@ -30,8 +30,7 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
   const { currentUser } = useAuth()
 
   const [rows, setRows] = useState<any[]>([])
-  const [order, setOrder] = useState<"desc" | null>(null)
-  const [orderBy, setOrderBy] = useState<string | null>(null)
+  const [orderBy, setOrderBy] = useState<string>("n_review")
 
   async function checkBookmark(place_id: string, userId: string) {
     const q = query(collection(db, "favorite"), where("place_id", "==", place_id), where("userId", "==", userId))
@@ -72,11 +71,7 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
   }, [results, currentUser])
 
   const handleSortRequest = (property: string) => {
-    if (orderBy === property && order === "desc") {
-      setOrder(null)
-      setOrderBy(null)
-    } else {
-      setOrder("desc")
+    if (orderBy !== property) {
       setOrderBy(property)
     }
   }
@@ -132,18 +127,15 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
     }
   }
 
-  const sortedRows = order
-    ? rows.slice().sort((a, b) => {
-        if (orderBy === "star") {
-          return b.star - a.star || b.n_review - a.n_review
-        } else if (orderBy === "n_review") {
-          return b.n_review - a.n_review || b.star - a.star
-        }
-        return 0
-      })
-    : rows
-    console.log("sortedRows", sortedRows)
-  
+  const sortedRows = rows.slice().sort((a, b) => {
+    if (orderBy === "star") {
+      return b.star - a.star || b.n_review - a.n_review
+    } else if (orderBy === "n_review") {
+      return b.n_review - a.n_review || b.star - a.star
+    }
+    return 0
+  })
+
   return (
     <TableContainer
       component={Paper}
@@ -154,41 +146,40 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
           <TableRow>
             <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
               <TableSortLabel
-                active={orderBy === "star"}
-                direction={order === "desc" ? "desc" : "desc"}
-                onClick={() => handleSortRequest("star")}
-              >
-                ☆評価
-              </TableSortLabel>
-            </TableCell>
-            <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
-              <TableSortLabel
                 active={orderBy === "n_review"}
-                direction={order === "desc" ? "desc" : "desc"}
+                direction={"desc"}
                 onClick={() => handleSortRequest("n_review")}
               >
                 口コミ数
               </TableSortLabel>
             </TableCell>
             <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
+              <TableSortLabel active={orderBy === "star"} direction={"desc"} onClick={() => handleSortRequest("star")}>
+                ☆評価
+              </TableSortLabel>
+            </TableCell>
+            <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
               店名
             </TableCell>
             <TableCell align="left" style={{ backgroundColor: "#eaeafa" }}>
-              行きたい
+              お気に入り
             </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {sortedRows.map((row) => (
             <TableRow key={row.place_id} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+              <TableCell align="left">{row.n_review}</TableCell>
               <TableCell component="th" scope="row">
                 {row.star}
               </TableCell>
-              <TableCell align="left">{row.n_review}</TableCell>
-              <ScrollableTableCell align="left" onClick={() => {
-                console.log("Clicked shop:", row.shop, "with placeId:", row.place_id)
-                onShopClick(row.place_id)
-                }}>
+              <ScrollableTableCell
+                align="left"
+                onClick={() => {
+                  console.log("Clicked shop:", row.shop, "with placeId:", row.place_id)
+                  onShopClick(row.place_id)
+                }}
+              >
                 <span style={{ color: "blue", textDecoration: "underline", cursor: "pointer" }}>{row.shop}</span>
               </ScrollableTableCell>
               <TableCell align="left">

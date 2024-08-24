@@ -14,24 +14,9 @@
 /* ページ全体の設定 */
 html,
 body {
-  background-color: #fffbf6;
+  background-color: #ffffff;
   zoom: 0.95; /* ホーム画面がデカすぎたため縮小 */
   margin: 0px;
-}
-
-/* ページ上部の固定ヘッダー */
-.sticky-header {
-  position: fixed;
-  top: 0;
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  height: 100px;
-  width: 100%;
-  background-color: #ddd;
-  border-bottom: 4px solid #666;
 }
 
 /* 画面全体のスタイル */
@@ -41,7 +26,7 @@ body {
   align-items: center; /* 上下中央揃え */
   justify-content: center; /* 左右中央揃え */
   min-width: 1260px; /* 拡大時の.contentはみ出しを防ぐ用 */
-  margin-top: 120px; /* ヘッダーの下にコンテンツを配置 */
+  margin-top: 30px; /* ヘッダーの下にコンテンツを配置 */
 }
 
 /* 画面内に垂直配置するコンテンツの基本スタイル */
@@ -52,7 +37,7 @@ body {
   border-radius: 6px;
 }
 
-.filter {
+.filter-favcondition {
   margin: 30px;
 }
 
@@ -82,4 +67,8 @@ body {
   height: 420px;
   width: 420px;
   border: 1px solid #aaa;
+}
+
+.favcondition-title {
+  color: #57b;
 }

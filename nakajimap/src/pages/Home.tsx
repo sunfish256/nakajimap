@@ -18,7 +18,7 @@ const Home: React.FC = () => {
     <div>
       <div className="container">
         <div className="content">
-          <div className="filter">
+          <div className="filter-favcondition">
             <RestaurantFilter setResults={setResults} />
           </div>
         </div>
