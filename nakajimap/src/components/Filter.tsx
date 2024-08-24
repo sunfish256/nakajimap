@@ -342,7 +342,14 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           label="☆評価の数はいくつ以上か"
           type="number"
           value={rating !== undefined ? rating.toString() : ""}
-          onChange={(e) => setRating(Number(e.target.value))}
+          onChange={(e) => {
+            const value = Number(e.target.value)
+            if (value <= 5.0) {
+              setRating(value)
+            } else {
+              setRating(5.0)
+            }
+          }}
           fullWidth
           margin="normal"
           inputProps={{ step: 0.5, min: 0, max: 5.0 }}
