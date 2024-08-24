@@ -8,7 +8,7 @@ import { searchNearbyRestaurants } from "../functions/Search"
 import { useAuth } from "../AuthContext"
 
 interface FilterProps {
-  setResults: React.Dispatch<React.SetStateAction<any[]>>
+  handleResultsUpdate: (results: any[], searchTriggered: boolean) => void
 }
 
 interface SearchParams {
@@ -21,7 +21,7 @@ interface SearchParams {
   rating: number
 }
 
-const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
+const RestaurantFilter: React.FC<FilterProps> = ({ handleResultsUpdate }) => {
   const loc = useLocation()
   const defaultParams: SearchParams = {
     location: "東京駅",
@@ -39,8 +39,8 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
   const [minBudget, setMinBudget] = useState<number | undefined>(searchParams?.minBudget)
   const [maxBudget, setMaxBudget] = useState<number | undefined>(searchParams?.maxBudget)
   const [cuisine, setCuisine] = useState<string>(searchParams?.cuisine || "")
-  const [reviewCount, setReviewCount] = useState<number>(searchParams?.reviewCount || 0)
-  const [rating, setRating] = useState<number>(searchParams?.rating || 0)
+  const [reviewCount, setReviewCount] = useState<number | undefined>(searchParams?.reviewCount)
+  const [rating, setRating] = useState<number | undefined>(searchParams?.rating)
   const [savedFilters, setSavedFilters] = useState<any[]>([])
   const [selectedFilter, setSelectedFilter] = useState("")
   const [searchTriggered, setSearchTriggered] = useState(false)
@@ -124,7 +124,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
             maxBudget
           )
           console.log(results) // 検索結果を表示するためのログ
-          setResults(results) // 親コンポーネントの状態を更新
+          handleResultsUpdate(results, searchTriggered) // 親コンポーネントの状態を更新
         } catch (error) {
           console.error("検索エラー:", error)
         }
@@ -334,6 +334,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           onChange={(e) => setReviewCount(Number(e.target.value))}
           fullWidth
           margin="normal"
+          placeholder="0"
           inputProps={{ step: 10, min: 0 }}
           InputLabelProps={{ shrink: true }}
           style={{ backgroundColor: "#fcfcfc" }}
@@ -352,6 +353,7 @@ const RestaurantFilter: React.FC<FilterProps> = ({ setResults }) => {
           }}
           fullWidth
           margin="normal"
+          placeholder="0"
           inputProps={{ step: 0.5, min: 0, max: 5.0 }}
           InputLabelProps={{ shrink: true }}
           style={{ backgroundColor: "#fcfcfc" }}
