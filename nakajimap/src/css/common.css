@@ -72,3 +72,12 @@ body {
 .favcondition-title {
   color: #57b;
 }
+
+.no-results-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #555;
+  text-align: center;
+}

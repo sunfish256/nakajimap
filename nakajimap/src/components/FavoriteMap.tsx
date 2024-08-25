@@ -107,6 +107,18 @@ const FavoriteMap = forwardRef(({ favorites, onMarkerClick }: MapProps, ref) => 
 
       if (newMarkers.length > 0) {
         mapInstanceRef.current.fitBounds(bounds)
+
+        // ズームレベルが低すぎないように制御
+        const listener = google.maps.event.addListener(mapInstanceRef.current, "bounds_changed", () => {
+          const zoomLevel = mapInstanceRef.current!.getZoom()
+          const minZoomLevel = 16
+
+          if (zoomLevel !== undefined && zoomLevel > minZoomLevel) {
+            mapInstanceRef.current!.setZoom(minZoomLevel)
+          }
+
+          google.maps.event.removeListener(listener)
+        })
       }
     }
   }, [favorites, onMarkerClick])
