@@ -68,10 +68,12 @@ export const Auth: React.FC = () => {
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider()
+    provider.setCustomParameters({
+      prompt: "select_account", // アカウント選択画面を必ず表示
+    })
     try {
       await signInWithPopup(auth, provider)
       console.log("Google sign in succeeded!")
-      navigate("/home")
     } catch (error) {
       console.error("Google sign in failed!", error)
       alert("Google sign in failed!")
