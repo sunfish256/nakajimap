@@ -4,6 +4,15 @@ services:
     working_dir: /nakajimap
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - VITE_APIKEY=${VITE_APIKEY}
+      - VITE_APP_ID=${VITE_APP_ID}
+      - VITE_AUTHDOMAIN=${VITE_AUTHDOMAIN}
+      - VITE_DATABASEURL=${VITE_DATABASEURL}
+      - VITE_GOOGLEMAP_API_KEY=${GOOGLEMAP_API_KEY}
+      - VITE_MESSAGING_SENDER_ID=${VITE_MESSAGING_SENDER_ID}
+      - VITE_MEASUREMENT_ID=${VITE_MEASUREMENT_ID}
+      - VITE_PROJECT_ID=${VITE_PROJECT_ID}
+      - VITE_STORAGE_BUCKET=${VITE_STORAGE_BUCKET}
     volumes:
       - ./nakajimap:/nakajimap
       - /nakajimap/node_modules
